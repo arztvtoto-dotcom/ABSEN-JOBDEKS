@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TVTOTO OPS </title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+--void:#04040a;--surface:#08081a;--card:#0d0d22;--elevated:#12122e;--hover:#171736;
+--gold:#e8b84b;--gold2:#c9952a;--gold-glow:rgba(232,184,75,.18);
+--cyan:#00f5d4;--cyan-glow:rgba(0,245,212,.12);
+--rose:#ff3d68;--violet:#a855f7;--green:#22c55e;--orange:#f97316;
+--t1:#eeedf8;--t2:#9997b8;--t3:#4a4870;--t4:#2a2848;
+--border:rgba(255,255,255,.05);--border-gold:rgba(232,184,75,.25);
+--sw:260px;--th:60px;--r1:14px;--r2:10px;--r3:6px;
+--ease:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:13.5px;}
+body{font-family:'Outfit',sans-serif;background-color:var(--void);background-image:url('https://statics.hokibagus.club/tvtoto/background/tvtoto_backgroundweb.png');background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat;color:var(--t1);min-height:100vh;overflow-x:hidden;}
+/* Dark overlay agar UI tetap terbaca di atas background */
+body::before{content:'';position:fixed;inset:0;background:rgba(2,2,12,.82);z-index:0;pointer-events:none;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.03;pointer-events:none;z-index:0;}
+.amb{position:fixed;pointer-events:none;z-index:0;border-radius:50%;filter:blur(80px);}
+.amb-1{width:600px;height:350px;top:-120px;left:15%;background:radial-gradient(ellipse,rgba(232,184,75,.1),transparent 70%);}
+.amb-2{width:350px;height:350px;bottom:5%;right:8%;background:radial-gradient(ellipse,rgba(0,245,212,.07),transparent 70%);}
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:linear-gradient(180deg,rgba(5,5,20,.96) 0%,rgba(3,3,14,.97) 100%);backdrop-filter:blur(16px);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:200;transition:transform .3s var(--ease);}
+.sidebar-logo{padding:20px 20px 18px;border-bottom:1px solid var(--border);}
+.logo-row{display:flex;align-items:center;gap:10px;}
+.logo-gem{width:34px;height:34px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:18px;color:#000;box-shadow:0 0 20px var(--gold-glow);}
+.logo-name{font-family:'Bebas Neue';font-size:22px;letter-spacing:.12em;background:linear-gradient(135deg,var(--gold),#f5d280);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-tagline{font-size:9px;color:var(--t3);letter-spacing:.18em;text-transform:uppercase;font-family:'JetBrains Mono';margin-top:2px;}
+.sidebar-nav{flex:1;padding:14px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+.nav-group-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--t4);font-family:'JetBrains Mono';padding:10px 12px 4px;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:var(--r2);cursor:pointer;color:var(--t2);font-weight:500;font-size:13px;transition:all .2s var(--ease);position:relative;border:1px solid transparent;user-select:none;}
+.nav-item:hover{background:var(--hover);color:var(--t1);border-color:var(--border);}
+.nav-item.active{background:linear-gradient(135deg,rgba(232,184,75,.12),rgba(232,184,75,.04));color:var(--gold);border-color:var(--border-gold);}
+.nav-item.active::before{content:'';position:absolute;left:0;top:25%;bottom:25%;width:2.5px;background:var(--gold);border-radius:0 3px 3px 0;box-shadow:0 0 10px var(--gold);}
+.nav-ico{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.sidebar-foot{padding:14px;border-top:1px solid var(--border);}
+.sys-status{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--r2);background:rgba(0,245,212,.05);border:1px solid rgba(0,245,212,.1);}
+.sys-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(1.3);}}
+.sys-label{font-family:'JetBrains Mono';font-size:11px;color:var(--cyan);}
+.sb-toggle{display:none;position:fixed;top:14px;left:14px;z-index:300;background:var(--card);border:1px solid var(--border-gold);border-radius:var(--r3);padding:8px 11px;cursor:pointer;color:var(--gold);font-size:16px;line-height:1;}
+/* TOPBAR */
+.topbar{position:fixed;top:0;left:var(--sw);right:0;height:var(--th);background:rgba(3,3,14,.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;z-index:150;}
+.topbar-crumb{font-family:'JetBrains Mono';font-size:10.5px;color:var(--t3);letter-spacing:.08em;}
+.topbar-crumb em{color:var(--gold);font-style:normal;}
+.spacer{flex:1;}
+.topbar-clock{font-family:'JetBrains Mono';font-size:19px;color:var(--t1);letter-spacing:.04em;font-weight:500;}
+.vdiv{width:1px;height:28px;background:var(--border);}
+.topbar-dateblock .d1{font-size:11.5px;color:var(--t1);font-weight:500;text-align:right;}
+.topbar-dateblock .d2{font-size:9px;color:var(--t3);font-family:'JetBrains Mono';text-align:right;}
+.mode-btn{display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:var(--r2);background:var(--elevated);border:1px solid var(--border);color:var(--t2);cursor:pointer;font-size:12px;font-family:'Outfit';font-weight:500;transition:all .2s var(--ease);}
+.mode-btn.admin{background:rgba(232,184,75,.1);border-color:var(--border-gold);color:var(--gold);}
+.notif-bell{width:34px;height:34px;border-radius:var(--r2);background:var(--elevated);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;position:relative;}
+.notif-pip{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--rose);border:1.5px solid var(--void);}
+/* MAIN */
+.main{margin-left:var(--sw);padding-top:var(--th);min-height:100vh;position:relative;z-index:1;}
+.page{display:none;padding:24px;animation:fadeUp .3s var(--ease);}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.ph{margin-bottom:24px;}
+.ph-title{font-family:'Bebas Neue';font-size:28px;letter-spacing:.06em;line-height:1;}
+.ph-title span{color:var(--gold);}
+.ph-sub{font-size:12px;color:var(--t2);margin-top:4px;}
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:var(--r1);padding:18px 20px;transition:all .25s var(--ease);position:relative;overflow:hidden;animation:fadeUp .4s var(--ease) both;}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;opacity:0;transition:.25s;}
+.scard:hover{transform:translateY(-3px);border-color:var(--border-gold);}
+.scard:hover::before{opacity:1;}
+.scard-gold::before{background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.scard-cyan::before{background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+.scard-rose::before{background:linear-gradient(90deg,transparent,var(--rose),transparent);}
+.scard-green::before{background:linear-gradient(90deg,transparent,var(--green),transparent);}
+.scard-glow{position:absolute;top:-20px;right:-20px;width:60px;height:60px;border-radius:50%;filter:blur(25px);opacity:.15;}
+.scard-gold .scard-glow{background:var(--gold);}
+.scard-cyan .scard-glow{background:var(--cyan);}
+.scard-rose .scard-glow{background:var(--rose);}
+.scard-green .scard-glow{background:var(--green);}
+.scard:nth-child(1){animation-delay:.05s;} .scard:nth-child(2){animation-delay:.1s;} .scard:nth-child(3){animation-delay:.15s;} .scard:nth-child(4){animation-delay:.2s;}
+.scard-ico{font-size:18px;margin-bottom:10px;}
+.scard-label{font-family:'JetBrains Mono';font-size:9.5px;text-transform:uppercase;letter-spacing:.18em;color:var(--t3);margin-bottom:8px;}
+.scard-val{font-family:'Bebas Neue';font-size:42px;line-height:1;margin-bottom:6px;}
+.scard-gold .scard-val{color:var(--gold);} .scard-cyan .scard-val{color:var(--cyan);} .scard-rose .scard-val{color:var(--rose);} .scard-green .scard-val{color:var(--green);}
+.scard-meta{font-size:11.5px;color:var(--t2);}
+/* PANELS */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r1);overflow:hidden;margin-bottom:16px;}
+.panel:last-child{margin-bottom:0;}
+.panel-hd{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.panel-title{font-family:'Bebas Neue';font-size:16px;letter-spacing:.08em;flex:1;}
+.panel-badge{font-family:'JetBrains Mono';font-size:10px;background:rgba(232,184,75,.1);color:var(--gold);border:1px solid var(--border-gold);padding:2px 9px;border-radius:20px;white-space:nowrap;}
+.panel-badge.cyan-b{background:rgba(0,245,212,.08);color:var(--cyan);border-color:rgba(0,245,212,.2);}
+.panel-badge.rose-b{background:rgba(255,61,104,.08);color:var(--rose);border-color:rgba(255,61,104,.2);}
+.panel-badge.violet-b{background:rgba(168,85,247,.08);color:var(--violet);border-color:rgba(168,85,247,.2);}
+.panel-badge.green-b{background:rgba(34,197,94,.08);color:var(--green);border-color:rgba(34,197,94,.2);}
+.panel-bd{padding:20px;}
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+/* FORM */
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:7px;font-family:'JetBrains Mono';}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 13px;background:var(--elevated);border:1px solid var(--border);border-radius:var(--r2);color:var(--t1);font-family:'Outfit';font-size:13.5px;transition:all .2s var(--ease);outline:none;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--border-gold);background:var(--hover);box-shadow:0 0 0 3px var(--gold-glow);}
+.form-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239997b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:10px;}
+.form-select option{background:var(--elevated);color:var(--t1);}
+.form-textarea{resize:vertical;min-height:100px;font-family:'JetBrains Mono';font-size:12.5px;line-height:1.6;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.total-hours{padding:10px 13px;background:rgba(0,245,212,.06);border:1px solid rgba(0,245,212,.15);border-radius:var(--r2);font-family:'JetBrains Mono';font-size:14px;color:var(--cyan);font-weight:500;text-align:center;min-height:42px;display:flex;align-items:center;justify-content:center;}
+/* ═══ OPERATOR SLOTS (NEW) ═══ */
+.op-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
+.op-slot{background:var(--elevated);border:1.5px solid rgba(168,85,247,.25);border-radius:var(--r1);padding:14px;position:relative;transition:all .25s var(--ease);}
+.op-slot:hover{border-color:rgba(168,85,247,.5);}
+.op-slot-label{font-family:'JetBrains Mono';font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:var(--violet);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.op-slot-num{width:18px;height:18px;background:rgba(168,85,247,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--violet);}
+.op-slot .form-input{border-color:rgba(168,85,247,.2);}
+.op-slot .form-input:focus{border-color:rgba(168,85,247,.5);box-shadow:0 0 0 3px rgba(168,85,247,.08);}
+.op-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);color:var(--violet);padding:3px 10px;border-radius:20px;font-size:11px;font-family:'JetBrains Mono';font-weight:600;}
+.op-badge-crown{font-size:10px;}
+/* ═══ RANDOM JOBDESK PANEL (NEW) ═══ */
+.rnd-hero{background:linear-gradient(135deg,rgba(232,184,75,.08),rgba(0,245,212,.05));border:1.5px solid var(--border-gold);border-radius:var(--r1);padding:20px;margin-bottom:16px;position:relative;overflow:hidden;}
+.rnd-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.rnd-title{font-family:'Bebas Neue';font-size:20px;letter-spacing:.08em;color:var(--gold);margin-bottom:4px;}
+.rnd-sub{font-size:12px;color:var(--t2);}
+.rnd-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px;}
+.shift-tab-row{display:flex;gap:8px;margin-bottom:16px;}
+.shift-tab{padding:8px 16px;border-radius:var(--r2);border:1px solid var(--border);background:var(--elevated);color:var(--t2);cursor:pointer;font-size:12.5px;font-weight:600;transition:all .2s var(--ease);}
+.shift-tab.active{background:rgba(232,184,75,.12);border-color:var(--border-gold);color:var(--gold);}
+.shift-tab:hover:not(.active){background:var(--hover);color:var(--t1);}
+/* ═══ RESULT TABLE (NEW STYLE) ═══ */
+.result-wrap{background:var(--elevated);border:1px solid var(--border);border-radius:var(--r1);overflow:hidden;margin-top:16px;}
+.result-tbl-hd{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:rgba(232,184,75,.04);}
+.result-tbl{width:100%;border-collapse:collapse;}
+.result-tbl thead th{padding:10px 16px;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--border);text-align:left;background:var(--elevated);}
+.result-tbl tbody td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+.result-tbl tbody tr:last-child td{border-bottom:none;}
+.result-tbl tbody tr{transition:background .15s;}
+.result-tbl tbody tr:hover{background:rgba(255,255,255,.02);}
+/* OPERATOR ROW special style */
+.result-tbl tbody tr.op-row td{background:rgba(168,85,247,.04);}
+.result-tbl tbody tr.op-row:hover td{background:rgba(168,85,247,.07);}
+/* JOBDESK BADGE STYLED */
+.jd-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:12.5px;font-weight:700;border:1px solid;}
+.jd-badge-op{background:rgba(168,85,247,.12);color:var(--violet);border-color:rgba(168,85,247,.3);}
+.jd-badge-rnd{background:rgba(0,245,212,.08);color:var(--cyan);border-color:rgba(0,245,212,.2);}
+/* SPIN ANIMATION for random */
+@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+@keyframes flash{0%,100%{opacity:1;}50%{opacity:.3;}}
+.spinning{animation:spin .4s linear infinite;}
+.flashing{animation:flash .15s linear 6;}
+/* BUTTONS */
+.btn{padding:10px 18px;border-radius:var(--r2);font-family:'Outfit';font-size:13.5px;font-weight:600;cursor:pointer;transition:all .2s var(--ease);border:none;display:inline-flex;align-items:center;gap:7px;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;box-shadow:0 4px 20px var(--gold-glow);}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(232,184,75,.35);}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--t2);}
+.btn-ghost:hover{background:var(--hover);color:var(--t1);border-color:var(--border-gold);}
+.btn-cyan{background:rgba(0,245,212,.1);border:1px solid rgba(0,245,212,.25);color:var(--cyan);}
+.btn-cyan:hover{background:rgba(0,245,212,.18);transform:translateY(-1px);}
+.btn-rose{background:rgba(255,61,104,.12);border:1px solid rgba(255,61,104,.3);color:var(--rose);}
+.btn-rose:hover{background:rgba(255,61,104,.2);}
+.btn-violet{background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);color:var(--violet);}
+.btn-violet:hover{background:rgba(168,85,247,.2);transform:translateY(-1px);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-full{width:100%;justify-content:center;padding:12px;}
+/* BIG RANDOM BTN */
+.btn-rnd-big{padding:14px 32px;font-size:16px;font-family:'Bebas Neue';letter-spacing:.1em;background:linear-gradient(135deg,rgba(0,245,212,.15),rgba(232,184,75,.1));border:1.5px solid rgba(0,245,212,.35);color:var(--cyan);border-radius:var(--r1);cursor:pointer;transition:all .3s var(--ease);display:inline-flex;align-items:center;gap:10px;position:relative;overflow:hidden;}
+.btn-rnd-big::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,245,212,.08),rgba(232,184,75,.06));opacity:0;transition:.3s;}
+.btn-rnd-big:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(0,245,212,.2);border-color:var(--cyan);}
+.btn-rnd-big:hover::before{opacity:1;}
+.btn-rnd-big:active{transform:scale(.97);}
+.dice-ico{font-size:22px;transition:transform .2s;}
+.btn-rnd-big:hover .dice-ico{transform:rotate(15deg);}
+/* PASTE BOX */
+.paste-box{width:100%;min-height:160px;padding:16px;background:linear-gradient(135deg,rgba(232,184,75,.04),rgba(0,245,212,.03));border:1.5px dashed rgba(232,184,75,.3);border-radius:var(--r1);color:var(--t1);font-family:'JetBrains Mono';font-size:12px;line-height:1.7;resize:vertical;outline:none;transition:all .25s var(--ease);}
+.paste-box:focus{border-color:var(--gold);background:rgba(232,184,75,.06);box-shadow:0 0 0 4px var(--gold-glow);}
+.paste-box::placeholder{color:var(--t3);}
+.paste-corner{display:flex;gap:8px;margin-top:10px;justify-content:flex-end;}
+/* TABLE */
+.tbl-wrap{overflow-x:auto;}
+.tbl-controls{display:flex;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--elevated);border:1px solid var(--border);border-radius:var(--r2);padding:7px 12px;flex:1;min-width:180px;}
+.search-box input{background:none;border:none;outline:none;color:var(--t1);font-family:'Outfit';font-size:13px;width:100%;}
+.search-ico{font-size:13px;color:var(--t3);}
+.filter-select{padding:7px 12px;background:var(--elevated);border:1px solid var(--border);border-radius:var(--r2);color:var(--t2);font-family:'Outfit';font-size:13px;outline:none;cursor:pointer;}
+.tbl{width:100%;border-collapse:collapse;}
+.tbl thead{background:var(--elevated);}
+.tbl th{padding:11px 16px;text-align:left;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+.tbl th:hover{color:var(--gold);}
+.tbl td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+.tbl tbody tr{transition:background .15s;}
+.tbl tbody tr:hover{background:var(--hover);}
+.tbl tbody tr:last-child td{border-bottom:none;}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:'JetBrains Mono';}
+.b-active{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);}
+.b-pending{background:rgba(255,61,104,.1);color:var(--rose);border:1px solid rgba(255,61,104,.2);}
+.b-done{background:rgba(100,100,150,.1);color:var(--t3);border:1px solid var(--border);}
+.b-pagi{background:rgba(232,184,75,.1);color:var(--gold);border:1px solid var(--border-gold);}
+.b-sore{background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.25);}
+.b-malam{background:rgba(168,85,247,.1);color:var(--violet);border:1px solid rgba(168,85,247,.25);}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 1.5s infinite;margin-right:3px;}
+/* AVATAR */
+.av{width:30px;height:30px;border-radius:var(--r3);background:linear-gradient(135deg,var(--gold),var(--gold2));display:inline-flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:13px;color:#000;margin-right:9px;flex-shrink:0;}
+/* CHECKLIST */
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--r2);background:var(--elevated);border:1px solid var(--border);}
+.check-box{width:18px;height:18px;border-radius:4px;border:2px solid var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0;}
+.check-box.checked{background:var(--green);border-color:var(--green);}
+.check-box.checked::after{content:'✓';color:#000;font-size:11px;font-weight:700;}
+/* SHIFT CARD */
+.shift-card{background:var(--elevated);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;transition:all .2s;position:relative;}
+.shift-card:hover{border-color:var(--border-gold);}
+.time-bar{height:4px;border-radius:2px;background:var(--border);overflow:hidden;margin:8px 0;}
+.time-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--cyan));transition:width .5s var(--ease);}
+/* HISTORY LOG */
+.log-item{display:flex;gap:14px;padding:12px 20px;border-bottom:1px solid var(--border);transition:background .15s;}
+.log-item:hover{background:var(--hover);}
+.log-item:last-child{border-bottom:none;}
+.log-time{font-family:'JetBrains Mono';font-size:10.5px;color:var(--t3);min-width:48px;padding-top:2px;}
+.log-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.log-content{flex:1;}
+.log-title{font-size:13px;font-weight:500;}
+.log-desc{font-size:11.5px;color:var(--t2);margin-top:2px;}
+/* TOAST */
+.toast-wrap{position:fixed;top:70px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:var(--r2);font-size:13px;font-weight:500;pointer-events:auto;transform:translateX(120%);transition:transform .35s var(--ease);box-shadow:0 8px 32px rgba(0,0,0,.5);}
+.toast.show{transform:translateX(0);}
+.toast-success{background:var(--card);border:1px solid rgba(34,197,94,.3);color:var(--green);}
+.toast-info{background:var(--card);border:1px solid var(--border-gold);color:var(--gold);}
+.toast-warn{background:var(--card);border:1px solid rgba(255,61,104,.3);color:var(--rose);}
+/* COPY FLASH */
+@keyframes copyFlash{0%{background:rgba(34,197,94,.2);}100%{background:transparent;}}
+.copy-flash{animation:copyFlash .4s ease;}
+/* FORMAT HINT */
+.format-hint{font-family:'JetBrains Mono';font-size:10.5px;color:var(--t3);background:var(--elevated);padding:10px 12px;border-radius:var(--r2);line-height:1.9;margin-bottom:12px;}
+/* EMPTY */
+.empty-state{text-align:center;padding:40px 20px;}
+.empty-icon{font-size:40px;margin-bottom:10px;opacity:.4;}
+.empty-text{color:var(--t3);font-size:13.5px;}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--surface);}
+::-webkit-scrollbar-thumb{background:var(--t4);border-radius:3px;}
+/* ═══ ABSEN STYLES ═══ */
+.absen-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.absen-input-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r1);overflow:hidden;margin-bottom:16px;}
+.absen-row{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);transition:background .15s;}
+.absen-row:hover{background:var(--hover);}
+.absen-row:last-child{border-bottom:none;}
+.absen-num{font-family:'JetBrains Mono';font-size:11px;color:var(--t3);min-width:28px;}
+.absen-name{flex:1;font-weight:600;font-size:13.5px;}
+.absen-shift-info{font-family:'JetBrains Mono';font-size:11.5px;color:var(--t2);min-width:110px;}
+.absen-time-input{width:130px;padding:7px 10px;background:var(--elevated);border:1px solid var(--border);border-radius:var(--r2);color:var(--t1);font-family:'JetBrains Mono';font-size:13px;outline:none;transition:.2s;}
+.absen-time-input:focus{border-color:var(--border-gold);box-shadow:0 0 0 3px var(--gold-glow);}
+.absen-time-input.late{border-color:rgba(255,61,104,.5);background:rgba(255,61,104,.06);}
+.absen-time-input.ontime{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.05);}
+.absen-status-col{min-width:110px;text-align:center;}
+.absen-action-col{display:flex;gap:6px;align-items:center;}
+/* LATE REPORT CARD */
+.late-card{background:var(--elevated);border:1px solid rgba(255,61,104,.2);border-radius:var(--r1);padding:0;overflow:hidden;transition:all .2s;}
+.late-card.has-late{border-color:rgba(255,61,104,.35);}
+.late-card-hd{padding:10px 16px;background:rgba(255,61,104,.08);border-bottom:1px solid rgba(255,61,104,.15);display:flex;align-items:center;gap:8px;}
+.late-card-body{padding:14px 16px;}
+.report-box{font-family:'JetBrains Mono';font-size:11.5px;line-height:2;color:var(--t1);background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;white-space:pre-wrap;word-break:break-word;}
+.report-box .report-label{color:var(--t3);font-size:10px;letter-spacing:.15em;}
+.report-box .report-val{color:var(--t1);}
+.report-box .report-late{color:var(--rose);font-weight:700;}
+.report-box .report-ok{color:var(--green);}
+/* ABSEN SUMMARY */
+.absen-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.sum-card{padding:14px 16px;border-radius:var(--r1);border:1px solid var(--border);background:var(--card);text-align:center;}
+.sum-val{font-family:'Bebas Neue';font-size:32px;line-height:1;margin-bottom:4px;}
+.sum-label{font-size:10.5px;color:var(--t3);font-family:'JetBrains Mono';text-transform:uppercase;letter-spacing:.12em;}
+.sum-late .sum-val{color:var(--rose);}
+.sum-ontime .sum-val{color:var(--green);}
+.sum-pending .sum-val{color:var(--gold);}
+/* ID INPUT */
+.id-input-wrap{display:flex;gap:8px;align-items:center;}
+.id-input{width:120px;padding:7px 10px;background:var(--elevated);border:1px solid var(--border);border-radius:var(--r2);color:var(--t1);font-family:'JetBrains Mono';font-size:12px;outline:none;text-transform:uppercase;}
+.id-input:focus{border-color:var(--border-gold);}
+.id-input::placeholder{color:var(--t3);text-transform:none;}
+/* COPY ALL LATE BTN */
+.copy-all-late{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--r2);background:rgba(255,61,104,.1);border:1px solid rgba(255,61,104,.3);color:var(--rose);cursor:pointer;font-size:12.5px;font-weight:600;font-family:'Outfit';transition:all .2s;}
+.copy-all-late:hover{background:rgba(255,61,104,.18);transform:translateY(-1px);}
+/* ABSEN TABS */
+.absen-shift-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.absen-tab{padding:7px 16px;border-radius:var(--r2);border:1px solid var(--border);background:var(--elevated);color:var(--t2);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;}
+.absen-tab.active{background:rgba(232,184,75,.12);border-color:var(--border-gold);color:var(--gold);}
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .sb-toggle{display:flex;}
+  .main,.topbar{left:0;margin-left:0;}
+  .topbar{left:0;padding:0 56px 0 14px;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .g2,.g3,.form-row,.form-row-3,.op-grid,.absen-grid{grid-template-columns:1fr;}
+  .page{padding:14px;}
+  .shift-tab-row{flex-wrap:wrap;}
+  .absen-summary{grid-template-columns:1fr 1fr;}
+  .absen-row{flex-wrap:wrap;gap:8px;}
+}
+@media(max-width:500px){
+  .stat-grid{grid-template-columns:1fr;}
+  .tbl-controls{flex-direction:column;}
+  .check-grid{grid-template-columns:1fr;}
+  .absen-summary{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="amb amb-1"></div>
+<div class="amb amb-2"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+<button class="sb-toggle" onclick="toggleSb()">☰</button>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-row">
+      <div class="logo-gem">N</div>
+      <div><div class="logo-name">TVTOTO OPS</div><div class="logo-tagline"></div></div>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-group-label">Menu Utama</div>
+    <div class="nav-item active" onclick="goPage('dashboard',this)"><span class="nav-ico">◈</span>Dashboard</div>
+    <div class="nav-item" onclick="goPage('jobdesk-acak',this)"><span class="nav-ico">🎲</span>Acak Jobdesk</div>
+    <div class="nav-item" onclick="goPage('operator',this)"><span class="nav-ico">👑</span>Setting Operator</div>
+    <div class="nav-item" onclick="goPage('shift',this)"><span class="nav-ico">⏱</span>Manajemen Shift</div>
+    <div class="nav-item" onclick="goPage('monitor',this)"><span class="nav-ico">📡</span>Monitor Real-time</div>
+    <div class="nav-item" onclick="goPage('absen',this)"><span class="nav-ico">🕐</span>Absensi Staff</div>
+    <div class="nav-group-label">Laporan</div>
+    <div class="nav-item" onclick="goPage('history',this)"><span class="nav-ico">🗂</span>History Log</div>
+    <div class="nav-item" onclick="goPage('export',this)"><span class="nav-ico">⬇</span>Export Data</div>
+  </div>
+  <div class="sidebar-foot">
+    <div class="sys-status"><div class="sys-dot"></div><span class="sys-label">SISTEM AKTIF — LIVE</span></div>
+  </div>
+</nav>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-crumb">NEXUS OPS / <em id="pageLabel">Dashboard</em></div>
+  <div class="spacer"></div>
+  <div class="topbar-clock" id="clock">00:00:00</div>
+  <div class="vdiv"></div>
+  <div class="topbar-dateblock"><div class="d1" id="tdate">—</div><div class="d2" id="tday">—</div></div>
+  <div class="vdiv"></div>
+  <button class="mode-btn admin" id="modeBtn" onclick="toggleMode()">👑 Admin</button>
+  <div class="notif-bell" onclick="goPage('history',document.querySelectorAll('.nav-item')[5])">🔔<div class="notif-pip" id="npip" style="display:none"></div></div>
+</header>
+
+<main class="main">
+
+<!-- ═══ DASHBOARD ═══ -->
+<div class="page active" id="page-dashboard">
+  <div class="ph"><div class="ph-title">CAPTAIN <span>Dashboard</span></div><div class="ph-sub">Overview operasional staff — monitoring real-time</div></div>
+  <div class="stat-grid">
+    <div class="scard scard-gold"><div class="scard-glow"></div><div class="scard-ico">👥</div><div class="scard-label">Staff Aktif</div><div class="scard-val" id="s-aktif">0</div><div class="scard-meta">Terdaftar hari ini</div></div>
+    <div class="scard scard-cyan"><div class="scard-glow"></div><div class="scard-ico">⏱</div><div class="scard-label">Total Shift</div><div class="scard-val" id="s-shift">0</div><div class="scard-meta">Shift dijadwalkan</div></div>
+    <div class="scard scard-rose"><div class="scard-glow"></div><div class="scard-ico">🎲</div><div class="scard-label">Jobdesk Aktif</div><div class="scard-val" id="s-jd">0</div><div class="scard-meta">Hasil distribusi</div></div>
+    <div class="scard scard-green"><div class="scard-glow"></div><div class="scard-ico">✅</div><div class="scard-label">Sedang Kerja</div><div class="scard-val" id="s-kerja">0</div><div class="scard-meta">Shift berlangsung</div></div>
+  </div>
+  <div class="g2">
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">📡 Status Shift Real-time</div><span class="panel-badge cyan-b">LIVE</span></div>
+      <div class="panel-bd" id="dashShiftList"><div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">Belum ada data shift</div></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">⚡ Quick Paste Format</div><span class="panel-badge">AUTO DETECT</span></div>
+      <div class="panel-bd">
+        <div style="font-size:12px;color:var(--t2);margin-bottom:10px;">Paste format shift langsung — sistem proses otomatis:</div>
+        <textarea class="paste-box" id="quickPaste" placeholder="Paste format shift di sini...&#10;Contoh:&#10;PUTRI CAHAYA | 07:45 | 17:45 | SCATTER&#10;JIMMY | 07:45 | 17:45 | WD DANA&#10;RADO DINATA | 21:00 | 07:00 | WD MANDIRI"></textarea>
+        <div class="paste-corner">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('quickPaste').value=''">Bersihkan</button>
+          <button class="btn btn-gold btn-sm" onclick="processPaste()">⚡ Proses Auto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">✅ Checklist Kehadiran</div><span class="panel-badge rose-b" id="checkBadge">0 Belum</span></div>
+    <div class="panel-bd" id="checklistPanel"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Tambah shift untuk melihat checklist</div></div></div>
+  </div>
+</div>
+
+<!-- ═══ ACAK JOBDESK (NEW CORE FEATURE) ═══ -->
+<div class="page" id="page-jobdesk-acak">
+  <div class="ph"><div class="ph-title">Acak <span>Jobdesk</span></div><div class="ph-sub">Distribusi otomatis dengan operator tetap, staff lain diacak sepenuhnya</div></div>
+
+  <!-- BIG RANDOM HERO -->
+  <div class="rnd-hero">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+      <div>
+        <div class="rnd-title">🎲 Sistem Acak Jobdesk</div>
+        <div class="rnd-sub">Operator (3 per shift) → jobdesk <strong style="color:var(--violet);">OPERATOR</strong> otomatis tetap<br>Staff lainnya → diacak dari pool jobdesk yang kamu input</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div style="font-size:11px;color:var(--t3);font-family:'JetBrains Mono';">Auto-acak per shift:</div>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" id="autoRnd" style="accent-color:var(--cyan);width:14px;height:14px;" onchange="toggleAutoRnd()">
+          <span style="font-size:12px;color:var(--t2);">Aktif</span>
+        </label>
+      </div>
+    </div>
+    <div class="rnd-controls">
+      <div class="shift-tab-row" style="margin-bottom:0;">
+        <div class="shift-tab active" id="tab-ALL" onclick="setActiveTab('ALL')">Semua Shift</div>
+        <div class="shift-tab" id="tab-PAGI" onclick="setActiveTab('PAGI')">🌅 Pagi</div>
+        <div class="shift-tab" id="tab-SORE" onclick="setActiveTab('SORE')">🌤 Sore</div>
+        <div class="shift-tab" id="tab-MALAM" onclick="setActiveTab('MALAM')">🌙 Malam</div>
+      </div>
+      <button class="btn-rnd-big" onclick="runRandom()" id="rndBtn">
+        <span class="dice-ico">🎲</span>
+        <span>ACAK JOBDESK SEKARANG</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="copyResult()">📋 Copy Hasil</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearResult()">🗑 Bersihkan</button>
+    </div>
+  </div>
+
+  <div class="g2">
+    <!-- Pool Jobdesk Input -->
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">💼 Pool Jobdesk (Diacak)</div><span class="panel-badge cyan-b">INPUT</span></div>
+      <div class="panel-bd">
+        <div style="font-size:12px;color:var(--t2);margin-bottom:12px;">Masukkan semua jobdesk yang akan diacak ke staff (selain operator). Satu jobdesk per baris:</div>
+        <div class="form-group">
+          <label class="form-label">Daftar Jobdesk</label>
+          <textarea class="form-textarea" id="jobdeskPool" style="min-height:180px;" placeholder="SCATTER&#10;WD DANA&#10;WD MANDIRI, BNI&#10;DEPO BCA&#10;MONITORING QRIS&#10;WD OVO&#10;CS LIVE CHAT&#10;..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" onclick="loadSampleJD()">📋 Load Contoh</button>
+          <button class="btn btn-cyan btn-sm" onclick="savePool()">💾 Simpan Pool</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Operator Info Panel -->
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">👑 Operator Per Shift</div><span class="panel-badge violet-b">FIXED</span></div>
+      <div class="panel-bd">
+        <div style="font-size:12px;color:var(--t2);margin-bottom:14px;">Nama-nama berikut akan mendapat jobdesk <span class="op-tag"><span class="op-badge-crown">👑</span>OPERATOR</span> secara otomatis — tidak masuk pool acak.</div>
+        <div style="display:flex;flex-direction:column;gap:8px;" id="opSummaryList">
+          <div class="empty-state" style="padding:20px;"><div class="empty-icon">👑</div><div class="empty-text">Belum ada operator diset</div></div>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="btn btn-violet btn-sm" onclick="goPage('operator',document.querySelectorAll('.nav-item')[2])">⚙ Setting Operator →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HASIL ACAK -->
+  <div class="panel" id="resultPanel" style="display:none;">
+    <div class="panel-hd">
+      <div class="panel-title">📊 Hasil Distribusi Jobdesk</div>
+      <span class="panel-badge" id="resultShiftLabel">—</span>
+      <span class="panel-badge cyan-b" id="resultCount">0 Staff</span>
+      <span class="panel-badge green-b" id="resultTime">—</span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="result-tbl">
+        <thead><tr><th>No</th><th>Nama Staff</th><th>Tipe Shift</th><th>Jam Kerja</th><th>Jobdesk</th><th>Tipe</th></tr></thead>
+        <tbody id="resultTB"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty result state -->
+  <div id="resultEmpty" class="panel">
+    <div class="panel-bd">
+      <div class="empty-state"><div class="empty-icon">🎲</div><div class="empty-text">Klik tombol "ACAK JOBDESK SEKARANG" untuk mendistribusikan jobdesk ke semua staff</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SETTING OPERATOR ═══ -->
+<div class="page" id="page-operator">
+  <div class="ph"><div class="ph-title">Setting <span>Operator</span></div><div class="ph-sub">Set 3 operator tetap per shift — mereka selalu mendapat jobdesk OPERATOR</div></div>
+
+  <div style="display:flex;flex-direction:column;gap:20px;">
+    <!-- SHIFT PAGI -->
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">🌅 Operator Shift Pagi</div><span class="panel-badge">3 SLOT</span></div>
+      <div class="panel-bd">
+        <div class="op-grid">
+          <div class="op-slot">
+            <div class="op-slot-label"><div class="op-slot-num">1</div>Operator 1 — Pagi</div>
+            <input class="form-input" id="op-pagi-1" type="text" placeholder="Nama operator..." list="staffDL">
+          </div>
+          <div class="op-slot">
+            <div class="op-slot-label"><div class="op-slot-num">2</div>Operator 2 — Pagi</div>
+            <input class="form-input" id="op-pagi-2" type="text" placeholder="Nama operator..." list="staffDL">
+          </div>
+          <div class="op-slot">
+            <div class="op-slot-label"><div class="op-slot-num">3</div>Operator 3 — Pagi</div>
+            <input class="form-input" id="op-pagi-3" type="text" placeholder="Nama operator..." list="staffDL">
+          </div>
+        </div>
+        <div style="font-size:11.5px;color:var(--t3);margin-top:4px;">💡 Kosongkan slot jika operator kurang dari 3 orang</div>
+      </div>
+    </div>
+
+    <!-- SHIFT SORE -->
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">🌤 Operator Shift Sore</div><span class="panel-badge">3 SLOT</span></div>
+      <div class="panel-bd">
+        <div class="op-grid">
+          <div class="op-slot">
+            <div class="op-slot-label"><div class="op-slot-num">1</div>Operator 1 — Sore</div>
+            <input class="form-input" id="op-sore-1" type="text" placeholder="Nama operator..." list="staffDL">
+          </div>
+          <div class="op-slot">
+            <div class="op-slot-label"><div class="op-slot-num">2</div>Operator 2 — Sore</div>
+            <input class="form-input" id="op-sore-2" type="text" placeholder="Nama operator..." list="staffDL">
+          </div>
+          <div class="op-slot">
+            <div class="op-slot-label"><div class="op-slot-num">3</div>Operator 3 — Sore</div>
+            <input class="form-input" id="op-sore-3" type="text" placeholder="Nama operator..." list="staffDL">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHIFT MALAM -->
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">🌙 Operator Shift Malam</div><span class="panel-badge">3 SLOT</span></div>
+      <div class="panel-bd">
+        <div class="op-grid">
+          <div class="op-slot">
+            <div class="op-slot-label"><div class="op-slot-num">1</div>Operator 1 — Malam</div>
+            <input class="form-input" id="op-malam-1" type="text" placeholder="Nama operator..." list="staffDL">
+          </div>
+          <div class="op-slot">
+            <div class="op-slot-label"><div class="op-slot-num">2</div>Operator 2 — Malam</div>
+            <input class="form-input" id="op-malam-2" type="text" placeholder="Nama operator..." list="staffDL">
+          </div>
+          <div class="op-slot">
+            <div class="op-slot-label"><div class="op-slot-num">3</div>Operator 3 — Malam</div>
+            <input class="form-input" id="op-malam-3" type="text" placeholder="Nama operator..." list="staffDL">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <datalist id="staffDL"></datalist>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="saveOperators()">💾 Simpan Setting Operator</button>
+      <button class="btn btn-ghost" onclick="clearOperators()">🗑 Hapus Semua Operator</button>
+      <button class="btn btn-cyan" onclick="goPage('jobdesk-acak',document.querySelectorAll('.nav-item')[1])">🎲 Lanjut ke Acak Jobdesk →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SHIFT ═══ -->
+<div class="page" id="page-shift">
+  <div class="ph"><div class="ph-title">Manajemen <span>Shift</span></div><div class="ph-sub">Input & kelola jadwal shift seluruh staff</div></div>
+  <div class="g2">
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">➕ Input Shift Manual</div><span class="panel-badge">FORM</span></div>
+      <div class="panel-bd">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Nama Staff</label><input class="form-input" id="sh-name" type="text" placeholder="Nama lengkap..." list="staffDL"></div>
+          <div class="form-group"><label class="form-label">Tanggal</label><input class="form-input" id="sh-date" type="date"></div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group"><label class="form-label">Jam Mulai</label><input class="form-input" id="sh-start" type="time" oninput="calcH()"></div>
+          <div class="form-group"><label class="form-label">Jam Selesai</label><input class="form-input" id="sh-end" type="time" oninput="calcH()"></div>
+          <div class="form-group"><label class="form-label">Total Jam</label><div class="total-hours" id="sh-total">— jam</div></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Tipe Shift</label>
+            <select class="form-select" id="sh-type">
+              <option value="PAGI">🌅 PAGI</option><option value="SORE">🌤 SORE</option>
+              <option value="MALAM">🌙 MALAM</option><option value="GANTUNG">⛓ GANTUNG</option><option value="CUSTOM">⚙ CUSTOM</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Keterangan</label><input class="form-input" id="sh-note" type="text" placeholder="Catatan..."></div>
+        </div>
+        <button class="btn btn-gold btn-full" onclick="addShift()">➕ Tambah Shift</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">📥 Paste Format Shift</div><span class="panel-badge">AUTO IMPORT</span></div>
+      <div class="panel-bd">
+        <div class="format-hint">Format 1: NAMA | HH:mm | HH:mm | KET<br>Format 2: Nama: X | Shift: HH:mm - HH:mm | Jobdesk: Y<br>Format 3: 1 NAMA 07:45 17:45 KET (spasi/tabel)</div>
+        <textarea class="paste-box" id="shiftPaste" style="min-height:180px;" placeholder="PASTE FORMAT SHIFT DI SINI...&#10;&#10;Contoh:&#10;PUTRI CAHAYA | 07:45 | 17:45 | 12 JAM&#10;JIMMY | 07:45 | 17:45 | 10 JAM&#10;RADO DINATA | 21:00 | 07:00 | 10 JAM"></textarea>
+        <div class="paste-corner">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('shiftPaste').value=''">Hapus</button>
+          <button class="btn btn-cyan btn-sm" onclick="importPaste()">📥 Import Semua</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">📊 Daftar Shift</div><span class="panel-badge" id="shiftCount">0 Shift</span></div>
+    <div class="tbl-controls">
+      <div class="search-box"><span class="search-ico">🔍</span><input type="text" placeholder="Cari nama staff..." oninput="filterST(this.value)"></div>
+      <select class="filter-select" onchange="filterSTtype(this.value)">
+        <option value="">Semua Tipe</option><option value="PAGI">Shift Pagi</option>
+        <option value="SORE">Shift Sore</option><option value="MALAM">Shift Malam</option>
+      </select>
+      <button class="btn btn-rose btn-sm" onclick="if(confirm('Hapus semua shift?')){shifts=[];save();renderAll();toast('Semua shift dihapus','warn');}">🗑 Hapus Semua</button>
+    </div>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>#</th><th>Nama Staff</th><th>Tipe</th><th>Mulai</th><th>Selesai</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody id="shiftTB"><tr><td colspan="8"><div class="empty-state"><div class="empty-icon">⏱</div><div class="empty-text">Belum ada data shift</div></div></td></tr></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══ MONITOR ═══ -->
+<div class="page" id="page-monitor">
+  <div class="ph"><div class="ph-title">Monitor <span>Real-time</span></div><div class="ph-sub">Pantau seluruh status staff secara langsung</div></div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">📡 Staff Monitoring Board</div><span class="panel-badge cyan-b">LIVE</span></div>
+    <div class="tbl-controls">
+      <div class="search-box"><span class="search-ico">🔍</span><input type="text" placeholder="Cari staff..." oninput="filterMon(this.value)"></div>
+      <select class="filter-select" onchange="filterMonStatus(this.value)">
+        <option value="">Semua Status</option><option value="AKTIF">🟢 Sedang Bekerja</option>
+        <option value="BELUM">🔴 Belum Mulai</option><option value="SELESAI">⬜ Selesai</option>
+      </select>
+      <button class="btn btn-cyan btn-sm" onclick="refreshMon()">🔄 Refresh</button>
+    </div>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>#</th><th>Nama Staff</th><th>Tipe</th><th>Jam Kerja</th><th>Total</th><th>Jobdesk</th><th>Status</th><th>Progress</th></tr></thead>
+      <tbody id="monTB"><tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📡</div><div class="empty-text">Belum ada data</div></div></td></tr></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══ HISTORY ═══ -->
+<div class="page" id="page-history">
+  <div class="ph"><div class="ph-title">History <span>Log</span></div><div class="ph-sub">Riwayat semua aktivitas sistem</div></div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">🗂 Activity Log</div>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" onclick="clearHist()">🗑 Hapus</button>
+        <span class="panel-badge" id="histCount">0 Entri</span>
+      </div>
+    </div>
+    <div id="histLog"><div class="empty-state"><div class="empty-icon">🗂</div><div class="empty-text">Log kosong</div></div></div>
+  </div>
+</div>
+
+<!-- ═══ EXPORT ═══ -->
+<div class="page" id="page-export">
+  <div class="ph"><div class="ph-title">Export <span>Data</span></div><div class="ph-sub">Unduh data dalam berbagai format</div></div>
+  <div class="g2">
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">📊 Export Shift</div></div>
+      <div class="panel-bd">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+          <button class="btn btn-gold" onclick="expCSV('shift')">📊 CSV</button>
+          <button class="btn btn-cyan" onclick="expJSON('shift')">⚙ JSON</button>
+          <button class="btn btn-rose" onclick="printTbl('shift')">🖨 Print</button>
+        </div>
+        <div class="form-label" style="margin-bottom:8px;">Preview</div>
+        <div id="expShiftPrev" style="font-family:'JetBrains Mono';font-size:11px;color:var(--t2);background:var(--elevated);padding:14px;border-radius:var(--r2);max-height:250px;overflow-y:auto;white-space:pre;line-height:1.8;">Belum ada data.</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">🎲 Export Hasil Acak</div></div>
+      <div class="panel-bd">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+          <button class="btn btn-gold" onclick="expCSV('result')">📊 CSV</button>
+          <button class="btn btn-cyan" onclick="expJSON('result')">⚙ JSON</button>
+          <button class="btn btn-ghost" onclick="copyResult()">📋 Copy Text</button>
+          <button class="btn btn-rose" onclick="printTbl('result')">🖨 Print</button>
+        </div>
+        <div class="form-label" style="margin-bottom:8px;">Preview Hasil Acak</div>
+        <div id="expResultPrev" style="font-family:'JetBrains Mono';font-size:11px;color:var(--t2);background:var(--elevated);padding:14px;border-radius:var(--r2);max-height:250px;overflow-y:auto;white-space:pre;line-height:1.8;">Belum ada hasil acak.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ABSENSI ═══ -->
+<div class="page" id="page-absen">
+  <div class="ph"><div class="ph-title">Absensi <span>Staff</span></div><div class="ph-sub">Catat jam masuk staff — otomatis deteksi keterlambatan & generate laporan</div></div>
+
+  <!-- SUMMARY STATS -->
+  <div class="absen-summary">
+    <div class="sum-card sum-late"><div class="sum-val" id="absen-late-count">0</div><div class="sum-label">⚠ Terlambat</div></div>
+    <div class="sum-card sum-ontime"><div class="sum-val" id="absen-ontime-count">0</div><div class="sum-label">✅ Tepat Waktu</div></div>
+    <div class="sum-card sum-pending"><div class="sum-val" id="absen-pending-count">0</div><div class="sum-label">🕐 Belum Absen</div></div>
+  </div>
+
+  <!-- FILTER SHIFT TAB -->
+  <div class="absen-shift-tabs">
+    <div class="absen-tab active" id="atab-ALL" onclick="setAbsenTab('ALL')">Semua Shift</div>
+    <div class="absen-tab" id="atab-PAGI" onclick="setAbsenTab('PAGI')">🌅 Pagi</div>
+    <div class="absen-tab" id="atab-SORE" onclick="setAbsenTab('SORE')">🌤 Sore</div>
+    <div class="absen-tab" id="atab-MALAM" onclick="setAbsenTab('MALAM')">🌙 Malam</div>
+  </div>
+
+  <div class="absen-grid">
+    <!-- KIRI: TABEL INPUT ABSEN -->
+    <div>
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">🕐 Input Jam Masuk</div>
+          <span class="panel-badge cyan-b" id="absen-total-badge">0 Staff</span>
+          <div style="margin-left:auto;display:flex;gap:8px;">
+            <button class="btn btn-ghost btn-sm" onclick="setAllNow()">⏱ Isi Jam Sekarang</button>
+            <button class="btn btn-gold btn-sm" onclick="saveAllAbsen()">💾 Simpan Semua</button>
+          </div>
+        </div>
+        <!-- INFO TOLERANSI -->
+        <div style="padding:10px 20px;border-bottom:1px solid var(--border);background:rgba(255,61,104,.05);">
+          <div style="font-size:11.5px;color:var(--t2);">
+            <span style="color:var(--rose);font-weight:600;">⚠ Batas toleransi:</span> Staff dinyatakan terlambat jika masuk melewati menit <strong style="color:var(--gold);">:45</strong> dari jam shift dimulai.
+          </div>
+        </div>
+        <!-- TABLE -->
+        <div id="absenTableWrap">
+          <div class="empty-state" style="padding:40px;"><div class="empty-icon">🕐</div><div class="empty-text">Belum ada data shift — tambah shift terlebih dahulu</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KANAN: LAPORAN KETERLAMBATAN -->
+    <div>
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-hd">
+          <div class="panel-title">📋 Laporan Keterlambatan</div>
+          <span class="panel-badge rose-b" id="late-count-badge">0 Telat</span>
+          <button class="copy-all-late" id="copyAllLateBtn" onclick="copyAllLateReports()" style="margin-left:auto;">
+            📋 Copy Semua Laporan
+          </button>
+        </div>
+        <div id="lateReportsList">
+          <div class="empty-state" style="padding:40px;"><div class="empty-icon">✅</div><div class="empty-text">Belum ada laporan keterlambatan</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let shifts = JSON.parse(localStorage.getItem('nx_shifts')||'[]');
+let hist   = JSON.parse(localStorage.getItem('nx_hist')||'[]');
+let checked= JSON.parse(localStorage.getItem('nx_checked')||'[]');
+
+// OPERATOR CONFIG: {pagi:[n1,n2,n3], sore:[...], malam:[...]}
+let operators = JSON.parse(localStorage.getItem('nx_operators')||'{"pagi":["","",""],"sore":["","",""],"malam":["","",""]}');
+
+// JOBDESK POOL (diacak)
+let jdPool = JSON.parse(localStorage.getItem('nx_jdpool')||'[]');
+
+// CURRENT RESULT (setelah acak)
+let lastResult = JSON.parse(localStorage.getItem('nx_lastresult')||'[]');
+
+// UI STATE
+let isAdmin=true, stSearch='', stType='', monSearch='', monStat='', activeTab='ALL', autoRnd=false;
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+window.onload=()=>{
+  tick(); setInterval(tick,1000); setInterval(refreshMon,30000);
+  document.getElementById('sh-date').value = todayS();
+  loadOperatorInputs();
+  loadPoolInput();
+  renderAll();
+  if(lastResult.length) showResult(lastResult);
+};
+
+function todayS(){return new Date().toISOString().split('T')[0];}
+function save(){
+  localStorage.setItem('nx_shifts',JSON.stringify(shifts));
+  localStorage.setItem('nx_hist',JSON.stringify(hist));
+  localStorage.setItem('nx_checked',JSON.stringify(checked));
+  localStorage.setItem('nx_operators',JSON.stringify(operators));
+  localStorage.setItem('nx_jdpool',JSON.stringify(jdPool));
+  localStorage.setItem('nx_lastresult',JSON.stringify(lastResult));
+}
+
+// ══════════════════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════════════════
+function tick(){
+  const n=new Date(), p=v=>String(v).padStart(2,'0');
+  document.getElementById('clock').textContent=`${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
+  const days=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  document.getElementById('tdate').textContent=`${n.getDate()} ${months[n.getMonth()]} ${n.getFullYear()}`;
+  document.getElementById('tday').textContent=`${days[n.getDay()]} — WIB`;
+}
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+function goPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  const L={dashboard:'Dashboard','jobdesk-acak':'Acak Jobdesk',operator:'Setting Operator',shift:'Manajemen Shift',monitor:'Monitor Real-time',absen:'Absensi Staff',history:'History Log',export:'Export Data'};
+  document.getElementById('pageLabel').textContent=L[id]||id;
+  if(id==='export') updateExpPrev();
+  if(id==='monitor') refreshMon();
+  if(id==='jobdesk-acak') renderOpSummary();
+  if(id==='absen') renderAbsenTable();
+  if(window.innerWidth<=900) document.getElementById('sidebar').classList.remove('open');
+}
+function toggleSb(){document.getElementById('sidebar').classList.toggle('open');}
+function toggleMode(){isAdmin=!isAdmin;const b=document.getElementById('modeBtn');b.textContent=isAdmin?'👑 Admin':'👤 Staff';b.className='mode-btn'+(isAdmin?' admin':'');toast('Mode: '+(isAdmin?'Admin':'Staff'),'info');}
+
+// ══════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════
+function toast(msg,type='success'){
+  const w=document.getElementById('toastWrap'),t=document.createElement('div');
+  t.className=`toast toast-${type}`;
+  t.innerHTML=`<span>${{success:'✅',info:'💡',warn:'⚠'}[type]}</span><span>${msg}</span>`;
+  w.appendChild(t); setTimeout(()=>t.classList.add('show'),50);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},3000);
+}
+
+// ══════════════════════════════════════════════════════
+// HOURS CALC
+// ══════════════════════════════════════════════════════
+function calcH(){document.getElementById('sh-total').textContent=hrs(document.getElementById('sh-start').value,document.getElementById('sh-end').value);}
+function hrs(s,e){
+  if(!s||!e)return'— jam';
+  let[sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
+  let a=sh*60+sm,b=eh*60+em; if(b<=a)b+=1440;
+  const d=b-a,h=Math.floor(d/60),m=d%60; return m?`${h}j ${m}m`:`${h} jam`;
+}
+function hrsN(s,e){
+  if(!s||!e)return 0;
+  let[sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
+  let a=sh*60+sm,b=eh*60+em; if(b<=a)b+=1440; return(b-a)/60;
+}
+
+// ══════════════════════════════════════════════════════
+// SHIFT STATUS
+// ══════════════════════════════════════════════════════
+function shiftStatus(s){
+  const n=new Date(),hm=n.getHours()*60+n.getMinutes();
+  let[sh,sm]=s.start.split(':').map(Number),[eh,em]=s.end.split(':').map(Number);
+  let a=sh*60+sm,b=eh*60+em; if(b<=a)b+=1440;
+  if(hm>=a&&hm<b)return'AKTIF'; if(hm>=b)return'SELESAI'; return'BELUM';
+}
+function shiftProg(s){
+  const n=new Date(),hm=n.getHours()*60+n.getMinutes();
+  let[sh,sm]=s.start.split(':').map(Number),[eh,em]=s.end.split(':').map(Number);
+  let a=sh*60+sm,b=eh*60+em; if(b<=a)b+=1440;
+  if(hm<a)return 0; if(hm>=b)return 100; return Math.round((hm-a)/(b-a)*100);
+}
+function shiftBadge(t){
+  const m={PAGI:'b-pagi',SORE:'b-sore',MALAM:'b-malam',GANTUNG:'b-malam',CUSTOM:'b-pending'};
+  return`<span class="badge ${m[t]||'b-pagi'}">${t}</span>`;
+}
+function statusBadge(st){
+  if(st==='AKTIF')return`<span class="badge b-active"><span class="live-dot"></span>AKTIF</span>`;
+  if(st==='SELESAI')return`<span class="badge b-done">SELESAI</span>`;
+  return`<span class="badge b-pending">BELUM</span>`;
+}
+function detectType(s){
+  if(!s)return'CUSTOM';
+  const h=parseInt(s.split(':')[0]);
+  if(h>=6&&h<12)return'PAGI'; if(h>=12&&h<18)return'SORE'; return'MALAM';
+}
+
+// ══════════════════════════════════════════════════════
+// ★★★ CORE: OPERATOR SYSTEM ★★★
+// ══════════════════════════════════════════════════════
+function saveOperators(){
+  operators.pagi  = [1,2,3].map(i=>document.getElementById(`op-pagi-${i}`).value.trim().toUpperCase());
+  operators.sore  = [1,2,3].map(i=>document.getElementById(`op-sore-${i}`).value.trim().toUpperCase());
+  operators.malam = [1,2,3].map(i=>document.getElementById(`op-malam-${i}`).value.trim().toUpperCase());
+  save(); renderAll();
+  addH('operator',`Setting operator disimpan`,'var(--violet)');
+  toast('Setting operator tersimpan!');
+  renderOpSummary();
+}
+
+function loadOperatorInputs(){
+  ['pagi','sore','malam'].forEach(shift=>{
+    [1,2,3].forEach((i,idx)=>{
+      const el=document.getElementById(`op-${shift}-${i}`);
+      if(el) el.value = operators[shift][idx]||'';
+    });
+  });
+}
+
+function clearOperators(){
+  operators={pagi:['','',''],sore:['','',''],malam:['','','']};
+  loadOperatorInputs(); save(); renderOpSummary(); toast('Operator dihapus','warn');
+}
+
+// Get operator names for a given shift type (non-empty only)
+function getOperatorsForShift(shiftType){
+  const key=shiftType.toLowerCase();
+  if(!operators[key])return[];
+  return operators[key].filter(n=>n&&n.trim()!=='');
+}
+
+// Check if a name is an operator for given shift
+function isOperator(name,shiftType){
+  return getOperatorsForShift(shiftType).includes(name.toUpperCase());
+}
+
+function renderOpSummary(){
+  const el=document.getElementById('opSummaryList');
+  if(!el)return;
+  const shifts2=[{key:'pagi',label:'🌅 Shift Pagi'},{key:'sore',label:'🌤 Shift Sore'},{key:'malam',label:'🌙 Shift Malam'}];
+  let html='';
+  shifts2.forEach(({key,label})=>{
+    const ops=operators[key].filter(n=>n&&n.trim()!=='');
+    if(!ops.length)return;
+    html+=`<div style="margin-bottom:10px;">
+      <div style="font-size:10.5px;color:var(--t3);font-family:'JetBrains Mono';text-transform:uppercase;letter-spacing:.15em;margin-bottom:6px;">${label}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        ${ops.map(n=>`<span class="op-tag"><span class="op-badge-crown">👑</span>${n}</span>`).join('')}
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html||`<div class="empty-state" style="padding:20px;"><div class="empty-icon">👑</div><div class="empty-text">Belum ada operator diset</div></div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// ★★★ CORE: RANDOM JOBDESK ENGINE ★★★
+// ══════════════════════════════════════════════════════
+function setActiveTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.shift-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+function toggleAutoRnd(){
+  autoRnd=document.getElementById('autoRnd').checked;
+  toast(autoRnd?'Auto-acak aktif — akan otomatis saat shift baru':'Auto-acak dinonaktifkan','info');
+}
+
+function savePool(){
+  const raw=document.getElementById('jobdeskPool').value.trim();
+  jdPool=raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  save(); toast(`Pool disimpan: ${jdPool.length} jobdesk`);
+  addH('pool',`Pool jobdesk diperbarui: ${jdPool.length} item`,'var(--cyan)');
+}
+
+function loadPoolInput(){
+  document.getElementById('jobdeskPool').value=jdPool.join('\n');
+}
+
+function loadSampleJD(){
+  const sample=['OPERATOR','SCATTER','DEPO MANUAL, OGL, BNI','WD DANA','DEPO BRI, BNI','DEPO DANA DEPO BCA','WD DANA','WD BCA, BRI','WD MANUAL, SEABANK','WD MANDIRI, BNI'];
+  document.getElementById('jobdeskPool').value=sample.join('\n');
+  toast('Contoh jobdesk dimuat!','info');
+}
+
+function runRandom(){
+  // save pool dulu jika ada perubahan
+  const rawPool=document.getElementById('jobdeskPool').value.trim();
+  if(rawPool) jdPool=rawPool.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!jdPool.length){toast('Pool jobdesk kosong! Isi dulu daftar jobdesk.','warn');return;}
+  if(!shifts.length){toast('Belum ada data shift! Tambah shift dulu.','warn');return;}
+
+  // Animate button
+  const btn=document.getElementById('rndBtn');
+  btn.style.opacity='.6';
+  btn.disabled=true;
+  const dice=btn.querySelector('.dice-ico');
+  if(dice)dice.classList.add('spinning');
+
+  setTimeout(()=>{
+    doRandom();
+    btn.style.opacity='1'; btn.disabled=false;
+    if(dice)dice.classList.remove('spinning');
+  },600);
+}
+
+function doRandom(){
+  // Filter shift berdasarkan active tab
+  let targetShifts=[...shifts];
+  if(activeTab!=='ALL') targetShifts=shifts.filter(s=>s.type===activeTab);
+  if(!targetShifts.length){toast(`Tidak ada shift ${activeTab}!`,'warn');return;}
+
+  const result=[];
+  // Pool copy
+  const pool=[...jdPool];
+
+  // Process each shift
+  const typeGroups={};
+  targetShifts.forEach(s=>{
+    if(!typeGroups[s.type])typeGroups[s.type]=[];
+    typeGroups[s.type].push(s);
+  });
+
+  Object.entries(typeGroups).forEach(([type,staffList])=>{
+    const opNames=getOperatorsForShift(type);
+    // Separate: operators vs regular staff
+    const opStaff=staffList.filter(s=>opNames.includes(s.name.toUpperCase()));
+    const regStaff=staffList.filter(s=>!opNames.includes(s.name.toUpperCase()));
+
+    // Operators get OPERATOR jobdesk (fixed)
+    opStaff.forEach(s=>{
+      result.push({name:s.name,type:s.type,start:s.start,end:s.end,jobdesk:'OPERATOR',isOp:true});
+    });
+
+    // Regular staff get shuffled from pool
+    const shuffledPool=shuffle([...pool]);
+    regStaff.forEach((s,i)=>{
+      const jd=shuffledPool[i%shuffledPool.length];
+      result.push({name:s.name,type:s.type,start:s.start,end:s.end,jobdesk:jd,isOp:false});
+    });
+  });
+
+  lastResult=result; save();
+  showResult(result);
+
+  const n=new Date(),p=v=>String(v).padStart(2,'0');
+  addH('random',`Acak jobdesk: ${result.length} staff (${result.filter(r=>r.isOp).length} operator tetap)`,'var(--cyan)');
+  toast(`Jobdesk berhasil diacak! ${result.length} staff`);
+  updateExpPrev();
+}
+
+function showResult(result){
+  if(!result.length)return;
+  document.getElementById('resultPanel').style.display='block';
+  document.getElementById('resultEmpty').style.display='none';
+  document.getElementById('resultCount').textContent=`${result.length} Staff`;
+  document.getElementById('resultShiftLabel').textContent=activeTab==='ALL'?'Semua Shift':activeTab;
+  const n=new Date(),p=v=>String(v).padStart(2,'0');
+  document.getElementById('resultTime').textContent=`${p(n.getHours())}:${p(n.getMinutes())}`;
+
+  const tb=document.getElementById('resultTB');
+  tb.innerHTML=result.map((r,i)=>`
+    <tr class="${r.isOp?'op-row':''}">
+      <td style="color:var(--t3);font-family:'JetBrains Mono';font-size:11px;">${i+1}</td>
+      <td><div style="display:flex;align-items:center;">
+        <div class="av" style="background:${r.isOp?'linear-gradient(135deg,var(--violet),#7c3aed)':'linear-gradient(135deg,var(--gold),var(--gold2))'}">${r.name.charAt(0)}</div>
+        <strong>${r.name}</strong>
+        ${r.isOp?'<span class="op-tag" style="margin-left:8px;font-size:10px;"><span>👑</span>OP</span>':''}
+      </div></td>
+      <td>${shiftBadge(r.type)}</td>
+      <td style="font-family:'JetBrains Mono';font-size:12px;color:var(--t2);">${r.start} – ${r.end}</td>
+      <td><span class="jd-badge ${r.isOp?'jd-badge-op':'jd-badge-rnd'}">${r.isOp?'👑':'🎲'} ${r.jobdesk}</span></td>
+      <td>${r.isOp?`<span class="badge" style="background:rgba(168,85,247,.1);color:var(--violet);border:1px solid rgba(168,85,247,.3);">TETAP</span>`:`<span class="badge" style="background:rgba(0,245,212,.08);color:var(--cyan);border:1px solid rgba(0,245,212,.2);">ACAK</span>`}</td>
+    </tr>
+  `).join('');
+
+  // Flash animation
+  tb.querySelectorAll('tr:not(.op-row) .jd-badge').forEach((el,i)=>{
+    el.style.animationDelay=`${i*0.05}s`;
+    el.classList.add('flashing');
+    setTimeout(()=>el.classList.remove('flashing'),1000+i*50);
+  });
+}
+
+function clearResult(){
+  lastResult=[];save();
+  document.getElementById('resultPanel').style.display='none';
+  document.getElementById('resultEmpty').style.display='block';
+  toast('Hasil acak dibersihkan','warn');
+}
+
+function copyResult(){
+  if(!lastResult.length){toast('Tidak ada hasil acak!','warn');return;}
+  const text=lastResult.map((r,i)=>`${i+1}. ${r.name} → ${r.jobdesk}${r.isOp?' [OPERATOR]':''}`).join('\n');
+  navigator.clipboard.writeText(text).then(()=>toast('Hasil acak disalin!')).catch(()=>{
+    const a=document.createElement('textarea');a.value=text;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();toast('Disalin!');
+  });
+}
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+// ══════════════════════════════════════════════════════
+// SHIFT MANAGEMENT
+// ══════════════════════════════════════════════════════
+function addShift(d){
+  const data=d||{name:document.getElementById('sh-name').value.trim().toUpperCase(),date:document.getElementById('sh-date').value,start:document.getElementById('sh-start').value,end:document.getElementById('sh-end').value,type:document.getElementById('sh-type').value,note:document.getElementById('sh-note').value.trim()};
+  if(!data.name){toast('Nama staff wajib!','warn');return;}
+  if(!data.start||!data.end){toast('Jam wajib diisi!','warn');return;}
+  shifts.push({...data,id:Date.now()+'_'+Math.random().toString(36).substr(2,5),hours:hrsN(data.start,data.end)});
+  save(); addH('shift',`Shift: ${data.name} (${data.start}–${data.end})`,'var(--gold)');
+  if(!d){['sh-name','sh-start','sh-end','sh-note'].forEach(id=>document.getElementById(id).value='');document.getElementById('sh-total').textContent='— jam';}
+  renderAll(); toast(`Shift ${data.name} ditambahkan!`);
+}
+
+function delShift(id){shifts=shifts.filter(s=>s.id!==id);save();addH('delete','Shift dihapus','var(--rose)');renderAll();toast('Dihapus','warn');}
+function filterST(q){stSearch=q.toLowerCase();renderShiftTbl();}
+function filterSTtype(v){stType=v;renderShiftTbl();}
+
+// ══════════════════════════════════════════════════════
+// PASTE PARSER
+// ══════════════════════════════════════════════════════
+function parseLine(line){
+  line=line.trim();
+  if(!line||/^(NO|#|NAMA|SHIFT|START|END|KET|-+)/i.test(line))return null;
+  if(/nama:/i.test(line)&&/shift:/i.test(line)){
+    const nm=line.match(/nama:\s*([^|]+)/i);
+    const sh=line.match(/shift:\s*(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/i);
+    if(nm&&sh)return{name:nm[1].trim().toUpperCase(),start:sh[1],end:sh[2]};
+  }
+  const parts=line.split('|').map(p=>p.trim()).filter(Boolean);
+  const tRx=/^\d{1,2}:\d{2}(:\d{2})?$/;
+  if(parts.length>=3){
+    const ti=parts.reduce((a,p,i)=>{if(tRx.test(p))a.push(i);return a;},[]);
+    if(ti.length>=2){
+      let st=parts[ti[0]].substring(0,5),en=parts[ti[1]].substring(0,5);
+      let nm=parts.slice(0,ti[0]).join(' ').replace(/^\d+\s*/,'').trim().toUpperCase();
+      if(nm)return{name:nm,start:st,end:en};
+    }
+    let nm=parts[0].replace(/^\d+\s*/,'').trim().toUpperCase();
+    if(nm&&tRx.test(parts[1])&&tRx.test(parts[2]))return{name:nm,start:parts[1].substring(0,5),end:parts[2].substring(0,5)};
+  }
+  const times=(line.match(/\d{1,2}:\d{2}(:\d{2})?/g)||[]).map(t=>t.substring(0,5));
+  if(times.length>=2){
+    let before=line.substring(0,line.indexOf(times[0])).replace(/^\d+\s+/,'').trim().toUpperCase();
+    if(before.length>1&&before.length<60)return{name:before,start:times[0],end:times[1]};
+  }
+  return null;
+}
+
+function importPaste(){
+  const raw=document.getElementById('shiftPaste').value.trim();
+  if(!raw){toast('Kotak paste kosong!','warn');return;}
+  let added=0,skip=0;
+  raw.split('\n').forEach(line=>{
+    const p=parseLine(line);
+    if(!p){skip++;return;}
+    shifts.push({...p,date:todayS(),type:detectType(p.start),hours:hrsN(p.start,p.end),id:Date.now()+'_'+Math.random().toString(36).substr(2,5),note:''});
+    added++;
+  });
+  save();renderAll();addH('import',`Import: ${added} shift (${skip} dilewati)`,'var(--cyan)');
+  toast(`${added} shift diimport!${skip?' ('+skip+' baris dilewati)':''}`,added>0?'success':'warn');
+  if(added>0)document.getElementById('shiftPaste').value='';
+}
+
+function processPaste(){
+  const raw=document.getElementById('quickPaste').value.trim();
+  if(!raw){toast('Kotak kosong!','warn');return;}
+  document.getElementById('shiftPaste').value=raw;
+  importPaste();
+  document.getElementById('quickPaste').value='';
+  goPage('shift',document.querySelectorAll('.nav-item')[3]);
+}
+
+// ══════════════════════════════════════════════════════
+// MONITOR
+// ══════════════════════════════════════════════════════
+function filterMon(q){monSearch=q.toLowerCase();renderMonTbl();}
+function filterMonStatus(v){monStat=v;renderMonTbl();}
+function refreshMon(){renderMonTbl();updateStats();renderDashList();renderChecklist();}
+
+// ══════════════════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════════════════
+function addH(type,desc,color){
+  const n=new Date(),p=v=>String(v).padStart(2,'0');
+  hist.unshift({type,desc,color,time:`${p(n.getHours())}:${p(n.getMinutes())}`,date:n.toLocaleDateString('id-ID')});
+  if(hist.length>100)hist=hist.slice(0,100);save();renderHistLog();
+  document.getElementById('npip').style.display='block';
+}
+function clearHist(){if(!confirm('Hapus history?'))return;hist=[];save();renderHistLog();toast('History dihapus','warn');}
+
+// ══════════════════════════════════════════════════════
+// CHECKLIST
+// ══════════════════════════════════════════════════════
+function renderChecklist(){
+  const names=[...new Set(shifts.map(s=>s.name))];
+  const el=document.getElementById('checklistPanel');
+  if(!names.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Tambah shift dulu</div></div>`;return;}
+  shifts.forEach(s=>{if(shiftStatus(s)==='AKTIF'&&!checked.includes(s.name))checked.push(s.name);});
+  save();
+  el.innerHTML=`<div class="check-grid">`+names.map(name=>{
+    const isC=checked.includes(name);
+    const st=shiftStatus(shifts.find(s=>s.name===name)||{start:'',end:''});
+    return`<div class="check-item" style="border-color:${isC?'rgba(34,197,94,.2)':'var(--border)'};">
+      <div class="check-box ${isC?'checked':''}" onclick="toggleCheck('${name}')"></div>
+      <div><div style="font-weight:600;font-size:13px;">${name}</div>
+      <div style="font-size:11px;color:${st==='AKTIF'?'var(--green)':st==='SELESAI'?'var(--t3)':'var(--rose)'};">${st}</div></div>
+    </div>`;
+  }).join('')+`</div>`;
+  const unc=names.filter(n=>!checked.includes(n)).length;
+  document.getElementById('checkBadge').textContent=`${unc} Belum`;
+}
+function toggleCheck(name){const i=checked.indexOf(name);if(i>=0)checked.splice(i,1);else checked.push(name);save();renderChecklist();}
+
+// ══════════════════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════════════════
+function updateStats(){
+  const u=new Set(shifts.map(s=>s.name)).size;
+  const a=shifts.filter(s=>shiftStatus(s)==='AKTIF').length;
+  document.getElementById('s-aktif').textContent=u;
+  document.getElementById('s-shift').textContent=shifts.length;
+  document.getElementById('s-jd').textContent=lastResult.length;
+  document.getElementById('s-kerja').textContent=a;
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER TABLES
+// ══════════════════════════════════════════════════════
+function renderShiftTbl(){
+  let data=[...shifts];
+  if(stSearch)data=data.filter(s=>s.name.toLowerCase().includes(stSearch));
+  if(stType)data=data.filter(s=>s.type===stType);
+  document.getElementById('shiftCount').textContent=`${shifts.length} Shift`;
+  const tb=document.getElementById('shiftTB');
+  if(!data.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">⏱</div><div class="empty-text">Tidak ada data shift</div></div></td></tr>`;return;}
+  tb.innerHTML=data.map((s,i)=>{
+    const opMark=isOperator(s.name,s.type)?` <span class="op-tag" style="font-size:10px;"><span>👑</span></span>`:'';
+    return`<tr>
+      <td style="color:var(--t3);font-family:'JetBrains Mono';">${i+1}</td>
+      <td><div style="display:flex;align-items:center;"><div class="av">${s.name.charAt(0)}</div><strong>${s.name}</strong>${opMark}</div></td>
+      <td>${shiftBadge(s.type)}</td>
+      <td style="font-family:'JetBrains Mono';font-size:12px;">${s.start}</td>
+      <td style="font-family:'JetBrains Mono';font-size:12px;">${s.end}</td>
+      <td style="color:var(--cyan);font-family:'JetBrains Mono';">${hrs(s.start,s.end)}</td>
+      <td>${statusBadge(shiftStatus(s))}</td>
+      <td><button class="btn btn-rose btn-sm" onclick="delShift('${s.id}')">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderMonTbl(){
+  let data=[...shifts];
+  if(monSearch)data=data.filter(s=>s.name.toLowerCase().includes(monSearch));
+  if(monStat)data=data.filter(s=>shiftStatus(s)===monStat);
+  const tb=document.getElementById('monTB');
+  if(!data.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📡</div><div class="empty-text">Tidak ada data</div></div></td></tr>`;return;}
+  tb.innerHTML=data.map((s,i)=>{
+    const st=shiftStatus(s),pr=shiftProg(s);
+    const r=lastResult.find(r=>r.name===s.name);
+    const jdDisplay=r?`<span class="jd-badge ${r.isOp?'jd-badge-op':'jd-badge-rnd'}">${r.isOp?'👑':'🎲'} ${r.jobdesk}</span>`:`<span style="color:var(--t3);font-size:11px;">Belum diacak</span>`;
+    const avatarBg=st==='AKTIF'?'linear-gradient(135deg,var(--green),#16a34a)':st==='SELESAI'?'linear-gradient(135deg,var(--t3),var(--t4))':'linear-gradient(135deg,var(--rose),#be123c)';
+    return`<tr>
+      <td style="color:var(--t3);font-family:'JetBrains Mono';">${i+1}</td>
+      <td><div style="display:flex;align-items:center;"><div class="av" style="background:${avatarBg}">${s.name.charAt(0)}</div><strong>${s.name}</strong></div></td>
+      <td>${shiftBadge(s.type)}</td>
+      <td style="font-family:'JetBrains Mono';font-size:12px;">${s.start} – ${s.end}</td>
+      <td style="color:var(--cyan);font-family:'JetBrains Mono';">${hrs(s.start,s.end)}</td>
+      <td>${jdDisplay}</td>
+      <td>${statusBadge(st)}</td>
+      <td><div style="min-width:90px;"><div class="time-bar"><div class="time-fill" style="width:${pr}%"></div></div><div style="font-family:'JetBrains Mono';font-size:10px;color:var(--t3);text-align:center;margin-top:2px;">${pr}%</div></div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDashList(){
+  const el=document.getElementById('dashShiftList');
+  if(!shifts.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">Belum ada data shift</div></div>`;return;}
+  el.innerHTML=shifts.slice(0,8).map(s=>{
+    const st=shiftStatus(s),pr=shiftProg(s);
+    const rjd=lastResult.find(r=>r.name===s.name);
+    const ag=st==='AKTIF'?'linear-gradient(135deg,var(--green),#16a34a)':'linear-gradient(135deg,var(--gold),var(--gold2))';
+    return`<div class="shift-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div class="av" style="width:26px;height:26px;font-size:11px;background:${ag}">${s.name.charAt(0)}</div>
+        <strong style="flex:1;font-size:13px;">${s.name}</strong>
+        ${shiftBadge(s.type)} ${statusBadge(st)}
+      </div>
+      <div class="time-bar"><div class="time-fill" style="width:${pr}%"></div></div>
+      <div style="display:flex;gap:12px;font-size:11.5px;color:var(--t2);">
+        <span>🕐 ${s.start}–${s.end}</span>
+        ${rjd?`<span class="jd-badge ${rjd.isOp?'jd-badge-op':'jd-badge-rnd'}" style="font-size:10px;padding:2px 8px;">${rjd.isOp?'👑':'🎲'} ${rjd.jobdesk}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  if(shifts.length>8)el.insertAdjacentHTML('beforeend',`<div style="text-align:center;margin-top:8px;"><button class="btn btn-ghost btn-sm" onclick="goPage('shift',document.querySelectorAll('.nav-item')[3])">Lihat semua →</button></div>`);
+}
+
+function renderHistLog(){
+  document.getElementById('histCount').textContent=`${hist.length} Entri`;
+  const el=document.getElementById('histLog');
+  if(!hist.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🗂</div><div class="empty-text">Log kosong</div></div>`;return;}
+  el.innerHTML=hist.map(h=>`<div class="log-item"><div class="log-time">${h.time}</div><div class="log-dot" style="background:${h.color||'var(--gold)'}"></div><div class="log-content"><div class="log-title">${h.desc}</div><div class="log-desc">${h.date}</div></div></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// STAFF DATALIST
+// ══════════════════════════════════════════════════════
+function updateDL(){
+  const names=[...new Set(shifts.map(s=>s.name))];
+  document.querySelectorAll('#staffDL').forEach(dl=>{
+    dl.innerHTML=names.map(n=>`<option value="${n}">`).join('');
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════════════════
+function updateExpPrev(){
+  document.getElementById('expShiftPrev').textContent=shifts.length?shifts.map((s,i)=>`${String(i+1).padStart(2,' ')}. ${s.name.padEnd(28,' ')} | ${s.type.padEnd(7,' ')} | ${s.start} – ${s.end} | ${hrs(s.start,s.end)}`).join('\n'):'Belum ada data.';
+  document.getElementById('expResultPrev').textContent=lastResult.length?lastResult.map((r,i)=>`${String(i+1).padStart(2,' ')}. ${r.name.padEnd(28,' ')} → ${r.jobdesk.padEnd(20,' ')} ${r.isOp?'[OPERATOR]':'[ACAK]'}`).join('\n'):'Belum ada hasil acak.';
+}
+function dl(fn,c,t='text/plain'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=fn;a.click();}
+function expCSV(type){
+  if(type==='shift'){
+    if(!shifts.length){toast('Tidak ada data!','warn');return;}
+    dl('shift.csv',['No,Nama,Tipe,Mulai,Selesai,Total',...shifts.map((s,i)=>`${i+1},"${s.name}",${s.type},${s.start},${s.end},"${hrs(s.start,s.end)}"`)].join('\n'),'text/csv');
+  } else {
+    if(!lastResult.length){toast('Tidak ada hasil acak!','warn');return;}
+    dl('jobdesk_acak.csv',['No,Nama,Shift,Mulai,Selesai,Jobdesk,Tipe',...lastResult.map((r,i)=>`${i+1},"${r.name}",${r.type},${r.start},${r.end},"${r.jobdesk}",${r.isOp?'OPERATOR':'ACAK'}`)].join('\n'),'text/csv');
+  }
+  toast('CSV diunduh!');
+}
+function expJSON(type){
+  const data=type==='shift'?shifts:lastResult;
+  if(!data.length){toast('Tidak ada data!','warn');return;}
+  dl(`${type}.json`,JSON.stringify(data,null,2),'application/json');toast('JSON diunduh!');
+}
+function printTbl(type){
+  let rows,title,headers;
+  if(type==='shift'){
+    if(!shifts.length){toast('Tidak ada data!','warn');return;}
+    title='SHIFT REPORT';headers=['No','Nama','Tipe','Mulai','Selesai','Total'];
+    rows=shifts.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name}</td><td>${s.type}</td><td>${s.start}</td><td>${s.end}</td><td>${hrs(s.start,s.end)}</td></tr>`).join('');
+  } else {
+    if(!lastResult.length){toast('Tidak ada hasil acak!','warn');return;}
+    title='DISTRIBUSI JOBDESK';headers=['No','Nama','Shift','Jam','Jobdesk','Tipe'];
+    rows=lastResult.map((r,i)=>`<tr><td>${i+1}</td><td>${r.name}</td><td>${r.type}</td><td>${r.start}–${r.end}</td><td>${r.jobdesk}</td><td>${r.isOp?'OPERATOR':'ACAK'}</td></tr>`).join('');
+  }
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>${title}</title><style>body{font-family:sans-serif;font-size:12px;padding:20px;}h2{margin-bottom:16px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ccc;padding:8px;text-align:left;}th{background:#111;color:#fff;}.op{background:#f3e8ff;}</style></head><body><h2>${title} — ${new Date().toLocaleDateString('id-ID')}</h2><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></body></html>`);
+  w.document.close();w.print();
+}
+
+
+// ══════════════════════════════════════════════════════
+// ★★★ ABSENSI SYSTEM ★★★
+// ══════════════════════════════════════════════════════
+let absenData   = JSON.parse(localStorage.getItem('nx_absen')  || '{}'); // {shiftId: {checkIn:'HH:MM:SS', staffId:'C12345', saved:true}}
+let activeAbsenTab = 'ALL';
+
+function saveAbsen(){
+  localStorage.setItem('nx_absen', JSON.stringify(absenData));
+}
+
+function setAbsenTab(tab){
+  activeAbsenTab = tab;
+  document.querySelectorAll('.absen-tab').forEach(t=>t.classList.remove('active'));
+  const el = document.getElementById('atab-'+tab);
+  if(el) el.classList.add('active');
+  renderAbsenTable();
+}
+
+// ── Get filtered shifts for absen view
+function getAbsenShifts(){
+  if(activeAbsenTab === 'ALL') return shifts;
+  return shifts.filter(s => s.type === activeAbsenTab);
+}
+
+// ── Detect late: check if checkIn time is after HH:45:00
+function isLate(shiftStart, checkInStr){
+  if(!checkInStr || checkInStr.trim() === '') return null; // not filled yet
+  const [sh, sm] = shiftStart.split(':').map(Number);
+  // tolerance deadline = shift start hour : 45 : 00
+  // BUT if shift start minute is already > 45, deadline = next hour:45
+  // Simpler rule: deadline = HH:45:00 where HH = the shift start hour
+  const deadlineMin = sh * 60 + 45;
+
+  // parse checkIn - support HH:MM:SS or HH:MM
+  const parts = checkInStr.trim().split(':').map(Number);
+  const ciH = parts[0]||0, ciM = parts[1]||0, ciS = parts[2]||0;
+  const ciTotalMin = ciH * 60 + ciM;
+  const ciTotalSec = ciTotalMin * 60 + ciS;
+  const deadlineSec = deadlineMin * 60;
+
+  return ciTotalSec > deadlineSec;
+}
+
+// ── Calculate how many minutes/seconds late
+function calcLateAmount(shiftStart, checkInStr){
+  const [sh] = shiftStart.split(':').map(Number);
+  const deadlineSec = (sh * 60 + 45) * 60;
+
+  const parts = checkInStr.trim().split(':').map(Number);
+  const ciH = parts[0]||0, ciM = parts[1]||0, ciS = parts[2]||0;
+  const ciSec = ciH * 3600 + ciM * 60 + ciS;
+
+  const diffSec = ciSec - deadlineSec;
+  if(diffSec <= 0) return null;
+
+  const m = Math.floor(diffSec / 60);
+  const s = diffSec % 60;
+  if(m === 0) return `${s} detik`;
+  if(s === 0) return `${m} menit`;
+  return `${m} menit ${s} detik`;
+}
+
+// ── Format time to WIB display (HH:MM:SS WIB)
+function fmtWIB(timeStr){
+  if(!timeStr) return '—';
+  const t = timeStr.trim();
+  // Ensure HH:MM:SS format
+  const parts = t.split(':');
+  const h = parts[0]||'00', m = parts[1]||'00', s = parts[2]||'00';
+  return `${h.padStart(2,'0')}:${m.padStart(2,'0')}:${s.padStart(2,'0')} WIB`;
+}
+
+// ── Pad seconds to HH:MM:SS if only HH:MM given
+function padToSec(timeStr){
+  if(!timeStr || timeStr.trim()==='') return '';
+  const p = timeStr.trim().split(':');
+  if(p.length === 2) return p[0].padStart(2,'0')+':'+p[1].padStart(2,'0')+':00';
+  return p[0].padStart(2,'0')+':'+p[1].padStart(2,'0')+':'+(p[2]||'00').padStart(2,'0');
+}
+
+// ── Generate late report text (format sesuai permintaan)
+function generateLateReport(s, aData){
+  const checkIn = padToSec(aData.checkIn);
+  const lateAmt = calcLateAmount(s.start, checkIn);
+  const sid = (aData.staffId||'').trim();
+  const nameDisplay = sid ? `${s.name} - ${sid}` : s.name;
+  return `Info : TVTOTO
+Perihal : Telat hadir ke Office 15 menit lebih awal
+Nama Staff : ${nameDisplay}
+
+Jam Kerja : ${fmtWIB(s.start.length===5?s.start+':00':s.start)} - ${fmtWIB(s.end.length===5?s.end+':00':s.end)}
+Masuk Office pada jam : ${fmtWIB(checkIn)}  ( ${lateAmt} )`;
+}
+
+// ── Render absen table
+function renderAbsenTable() {
+    const data = getAbsenShifts();
+    const wrap = document.getElementById('absenTableWrap');
+    document.getElementById('absen-total-badge').textContent = `${data.length} Staff`;
+
+    if (!data.length) {
+        wrap.innerHTML = `<div class="empty-state" style="padding:40px;"><div class="empty-icon">🕐</div><div class="empty-text">Belum ada data shift</div></div>`;
+        updateAbsenStats();
+        return;
+    }
+
+    let html = '';
+    data.forEach((s, i) => {
+        const aKey = s.id;
+        const aData = absenData[aKey] || { checkIn: '', staffId: '', saved: false };
+        const ci = aData.checkIn || '';
+        const sid = aData.staffId || '';
+
+        const late = ci ? isLate(s.start, padToSec(ci)) : null;
+        let statusBadgeHtml = `<span class="badge" style="background:rgba(74,72,112,.2);color:var(--t3);border:1px solid var(--border);">BELUM</span>`;
+        if (late === true) statusBadgeHtml = `<span class="badge b-pending">⚠ TELAT</span>`;
+        if (late === false) statusBadgeHtml = `<span class="badge b-active">✅ TEPAT</span>`;
+
+        // Checkbox for presence input
+        html += `<div class="absen-row" id="absen-row-${aKey}">
+            <div class="absen-num">${i + 1}</div>
+            <div class="absen-name">
+                <div>${s.name}</div>
+                <div style="font-size:10.5px;color:var(--t3);font-family:'JetBrains Mono';">${s.type} • ${s.start}–${s.end}</div>
+            </div>
+            <div class="id-input-wrap">
+                <input class="id-input" type="text" id="sid-${aKey}" value="${sid}" placeholder="ID Staff..." maxlength="12"
+                    oninput="updateAbsenField('${aKey}','staffId',this.value)"
+                    style="width:100px;">
+            </div>
+            <input class="absen-time-input ${late === true ? 'late' : late === false ? 'ontime' : ''}" 
+                type="text" id="ci-${aKey}" value="${ci}" placeholder="HH:MM:SS"
+                maxlength="8" oninput="onAbsenInput('${aKey}',this)"
+                onblur="onAbsenBlur('${aKey}',this)">
+            <div class="absen-status-col">${statusBadgeHtml}</div>
+            <div class="absen-action-col">
+                <input type="checkbox" onclick="checkIn('${aKey}')" /> Hadir
+                ${late === true ? `<button class="btn btn-rose btn-sm" onclick="copySingleReport('${aKey}')" title="Copy laporan">📋</button>` : ''}
+                ${aData.saved ? `<button class="btn btn-ghost btn-sm" style="color:var(--t3);" onclick="clearAbsen('${aKey}')">✕</button>` : ''}
+            </div>
+        </div>`;
+    });
+
+    wrap.innerHTML = html;
+    updateAbsenStats();
+    renderLateReports();
+}
+
+function checkIn(key) {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const timeStr = `${h}:${m}:00`;  // for HH:MM:SS format
+
+    const elCheckIn = document.getElementById(`ci-${key}`);
+    elCheckIn.value = timeStr;  // Set current time to check-in input
+    onAbsenInput(key, elCheckIn);  // Trigger input function to process time
+
+    // Mark the check-in as saved
+    absenData[key] = absenData[key] || { checkIn: '', staffId: '', saved: false };
+    absenData[key].checkIn = timeStr;
+    saveAbsen();  // Save data
+}
+
+function onAbsenInput(key, el){
+  // Auto format: insert colons automatically
+  let v = el.value.replace(/[^0-9]/g,'');
+  if(v.length > 2) v = v.slice(0,2)+':'+v.slice(2);
+  if(v.length > 5) v = v.slice(0,5)+':'+v.slice(5);
+  if(v.length > 8) v = v.slice(0,8);
+  el.value = v;
+  absenData[key] = absenData[key] || {checkIn:'',staffId:'',saved:false};
+  absenData[key].checkIn = v;
+  // Live status update
+  const s = shifts.find(s=>s.id===key);
+  if(s && v.length >= 5){
+    const padded = padToSec(v);
+    const late = isLate(s.start, padded);
+    el.className = `absen-time-input ${late===true?'late':late===false?'ontime':''}`;
+  }
+}
+
+function onAbsenBlur(key, el){
+  const s = shifts.find(s=>s.id===key);
+  if(!s || !el.value) return;
+  const padded = padToSec(el.value);
+  absenData[key] = absenData[key] || {checkIn:'',staffId:'',saved:false};
+  absenData[key].checkIn = el.value;
+  saveAbsen();
+  renderAbsenTable();
+}
+
+function updateAbsenField(key, field, value){
+  absenData[key] = absenData[key] || {checkIn:'',staffId:'',saved:false};
+  absenData[key][field] = value;
+}
+
+function clearAbsen(key){
+  delete absenData[key];
+  saveAbsen();
+  renderAbsenTable();
+}
+
+function saveAllAbsen(){
+  const data = getAbsenShifts();
+  let saved = 0;
+  data.forEach(s=>{
+    const el = document.getElementById(`ci-${s.id}`);
+    const selEl = document.getElementById(`sid-${s.id}`);
+    if(el && el.value){
+      absenData[s.id] = absenData[s.id] || {};
+      absenData[s.id].checkIn = el.value;
+      absenData[s.id].saved = true;
+      if(selEl) absenData[s.id].staffId = selEl.value;
+      saved++;
+    }
+  });
+  saveAbsen();
+  renderAbsenTable();
+  addH('absen', `Absensi disimpan: ${saved} staff`, 'var(--cyan)');
+  toast(`${saved} absensi tersimpan!`);
+}
+
+function setAllNow(){
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s2 = String(now.getSeconds()).padStart(2,'0');
+  const timeStr = `${h}:${m}:${s2}`;
+  const data = getAbsenShifts();
+  data.forEach(s=>{
+    const el = document.getElementById(`ci-${s.id}`);
+    if(el && !el.value){
+      el.value = timeStr;
+      absenData[s.id] = absenData[s.id] || {checkIn:'',staffId:'',saved:false};
+      absenData[s.id].checkIn = timeStr;
+    }
+  });
+  saveAbsen();
+  renderAbsenTable();
+  toast(`Jam sekarang (${timeStr}) diisi ke semua yang kosong`,'info');
+}
+
+// ── Update absen stats
+function updateAbsenStats(){
+  const data = getAbsenShifts();
+  let late=0, ontime=0, pending=0;
+  data.forEach(s=>{
+    const aData = absenData[s.id];
+    if(!aData || !aData.checkIn){ pending++; return; }
+    const r = isLate(s.start, padToSec(aData.checkIn));
+    if(r === true) late++;
+    else if(r === false) ontime++;
+    else pending++;
+  });
+  document.getElementById('absen-late-count').textContent = late;
+  document.getElementById('absen-ontime-count').textContent = ontime;
+  document.getElementById('absen-pending-count').textContent = pending;
+  document.getElementById('late-count-badge').textContent = `${late} Telat`;
+}
+
+// ── Render late reports (right panel)
+function renderLateReports(){
+  const allShifts = getAbsenShifts();
+  const lateList = allShifts.filter(s=>{
+    const aData = absenData[s.id];
+    if(!aData || !aData.checkIn) return false;
+    return isLate(s.start, padToSec(aData.checkIn)) === true;
+  });
+
+  const el = document.getElementById('lateReportsList');
+  if(!lateList.length){
+    el.innerHTML = `<div class="empty-state" style="padding:30px;"><div class="empty-icon">✅</div><div class="empty-text">Semua staff tepat waktu</div></div>`;
+    return;
+  }
+
+  el.innerHTML = lateList.map((s, i)=>{
+    const aData = absenData[s.id];
+    const report = generateLateReport(s, aData);
+    const lateAmt = calcLateAmount(s.start, padToSec(aData.checkIn));
+    return `<div class="late-card has-late" style="margin:12px 16px;">
+      <div class="late-card-hd">
+        <div class="av" style="width:26px;height:26px;font-size:11px;background:linear-gradient(135deg,var(--rose),#be123c);">${s.name.charAt(0)}</div>
+        <div style="flex:1;">
+          <strong style="font-size:13px;">${s.name}</strong>
+          ${aData.staffId ? `<span style="color:var(--t3);font-size:11px;font-family:'JetBrains Mono';margin-left:6px;">${aData.staffId}</span>` : ''}
+        </div>
+        <span class="badge b-pending" style="font-size:10px;">⚠ ${lateAmt}</span>
+        <button class="btn btn-rose btn-sm" onclick="copySingleReport('${s.id}')" style="margin-left:6px;" title="Copy laporan ini">📋 Copy</button>
+      </div>
+      <div class="late-card-body">
+        <div class="report-box" id="report-box-${s.id}">${escHtml(report)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copySingleReport(key){
+  const s = shifts.find(s=>s.id===key);
+  const aData = absenData[key];
+  if(!s || !aData || !aData.checkIn){ toast('Data belum lengkap!','warn'); return; }
+  const report = generateLateReport(s, aData);
+  navigator.clipboard.writeText(report)
+    .then(()=>toast(`Laporan ${s.name} disalin!`))
+    .catch(()=>{
+      const ta=document.createElement('textarea');ta.value=report;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Disalin!');
+    });
+  // Flash effect
+  const box = document.getElementById(`report-box-${key}`);
+  if(box){ box.style.background='rgba(34,197,94,.15)'; setTimeout(()=>box.style.background='rgba(0,0,0,.3)',400); }
+}
+
+function copyAllLateReports(){
+  const allShifts = getAbsenShifts();
+  const lateList = allShifts.filter(s=>{
+    const aData = absenData[s.id];
+    if(!aData || !aData.checkIn) return false;
+    return isLate(s.start, padToSec(aData.checkIn)) === true;
+  });
+  if(!lateList.length){ toast('Tidak ada laporan keterlambatan!','warn'); return; }
+  const all = lateList.map(s=>generateLateReport(s, absenData[s.id])).join('\n\n---\n\n');
+  navigator.clipboard.writeText(all)
+    .then(()=>toast(`${lateList.length} laporan disalin!`))
+    .catch(()=>{
+      const ta=document.createElement('textarea');ta.value=all;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Disalin!');
+    });
+  addH('absen',`Copy laporan telat: ${lateList.length} staff`,'var(--rose)');
+}
+// ── Hook into renderAll
+const _origRenderAll = renderAll;
+// (renderAll already defined above, just make sure absen is refreshed on page open)
+
+// ══════════════════════════════════════════════════════
+// RENDER ALL
+// ══════════════════════════════════════════════════════
+function renderAll(){
+  renderShiftTbl(); renderMonTbl(); renderDashList();
+  renderHistLog(); updateStats(); renderChecklist();
+  updateDL(); renderOpSummary();
+  // refresh absen table if visible
+  const absenPage = document.getElementById('page-absen');
+  if(absenPage && absenPage.classList.contains('active')) renderAbsenTable();
+}
+
+</script>
+</body>
+</html>
