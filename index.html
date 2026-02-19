@@ -870,102 +870,215 @@ window.fbRemove = remove;
 window.fbOnValue = onValue;
 window.setFbStatus = setFbStatus;
 
+// ═══════════════════════════════════════════════
+// FIREBASE HELPERS — object-based storage
+// Shifts, lastResult, hist, jdPool, checked
+// disimpan sebagai OBJECT {id: item} bukan array
+// agar Firebase tidak mengubah struktur data
+// ═══════════════════════════════════════════════
+
+// Konversi array → object {item.id: item}
+function arrToObj(arr) {
+  if (!arr || !Array.isArray(arr)) return {};
+  const obj = {};
+  arr.forEach(item => {
+    if (item && item.id) obj[item.id] = item;
+    else if (item) obj['k_' + Math.random().toString(36).substr(2,8)] = item;
+  });
+  return obj;
+}
+
+// Konversi object Firebase → array, buang null
+function objToArr(obj) {
+  if (!obj) return [];
+  if (Array.isArray(obj)) return obj.filter(Boolean);
+  return Object.values(obj).filter(Boolean);
+}
+
+// ─── Firebase Status UI ───
+function setFbStatus(status, text) {
+  const el = document.getElementById('fb-status');
+  const txt = document.getElementById('fb-status-text');
+  if (!el || !txt) return;
+  el.className = 'fb-status' + (status !== 'online' ? ' ' + status : '');
+  txt.textContent = text;
+}
+
 // ─── Listen real-time dari Firebase ───
 function startFirebaseListeners() {
   setFbStatus('syncing', 'Menghubungkan...');
 
-  // Shifts
+  // ── SHIFTS ──
+  // Disimpan sebagai object {shiftId: shiftData}
   onValue(ref(db, 'tvtoto/shifts'), (snap) => {
-    const data = snap.val();
-    window.shifts = data ? Object.values(data) : [];
-    window.renderAll && window.renderAll();
+    const raw = snap.val();
+    window.shifts = objToArr(raw);
     setFbStatus('online', '☁ Cloud Sync Aktif');
+    window.renderAll && window.renderAll();
+  }, (err) => {
+    console.error('shifts listener error:', err);
+    setFbStatus('offline', '❌ ' + err.code);
   });
 
-  // Absen Data
+  // ── ABSEN DATA ──
+  // Disimpan sebagai object {shiftId: {checkIn, staffId, saved}}
   onValue(ref(db, 'tvtoto/absenData'), (snap) => {
     window.absenData = snap.val() || {};
     const ap = document.getElementById('page-absen');
-    if (ap && ap.classList.contains('active')) window.renderAbsenTable && window.renderAbsenTable();
+    if (ap && ap.classList.contains('active')) {
+      window.renderAbsenTable && window.renderAbsenTable();
+    }
+    window.updateAbsenStats && window.updateAbsenStats();
   });
 
-  // LINE Absen Data
+  // ── LINE ABSEN DATA ──
   onValue(ref(db, 'tvtoto/lineAbsenData'), (snap) => {
     window.lineAbsenData = snap.val() || {};
     const lp = document.getElementById('page-absen-line');
-    if (lp && lp.classList.contains('active')) window.renderLineTable && window.renderLineTable();
+    if (lp && lp.classList.contains('active')) {
+      window.renderLineTable && window.renderLineTable();
+    }
     window.updateDashLineStats && window.updateDashLineStats();
   });
 
-  // Operators
+  // ── OPERATORS ──
   onValue(ref(db, 'tvtoto/operators'), (snap) => {
-    window.operators = snap.val() || { pagi: ['','',''], sore: ['','',''], malam: ['','',''] };
+    const raw = snap.val();
+    window.operators = raw || { pagi:['','',''], sore:['','',''], malam:['','',''] };
+    // Pastikan tiap shift punya array 3 elemen
+    ['pagi','sore','malam'].forEach(k => {
+      if (!window.operators[k]) window.operators[k] = ['','',''];
+      while (window.operators[k].length < 3) window.operators[k].push('');
+    });
     window.loadOpInputs && window.loadOpInputs();
     window.renderOpSummary && window.renderOpSummary();
   });
 
-  // JD Pool
+  // ── JOBDESK POOL ──
+  // Disimpan sebagai object {k0:'SCATTER', k1:'WD DANA',...}
   onValue(ref(db, 'tvtoto/jdPool'), (snap) => {
-    window.jdPool = snap.val() || [];
+    const raw = snap.val();
+    if (!raw) { window.jdPool = []; }
+    else if (Array.isArray(raw)) { window.jdPool = raw.filter(Boolean); }
+    else { window.jdPool = Object.values(raw).filter(Boolean); }
     window.loadPoolInput && window.loadPoolInput();
   });
 
-  // Last Result
+  // ── LAST RESULT ──
   onValue(ref(db, 'tvtoto/lastResult'), (snap) => {
-    window.lastResult = snap.val() || [];
-    if (window.lastResult.length) window.showResult && window.showResult(window.lastResult);
+    const raw = snap.val();
+    window.lastResult = objToArr(raw);
+    if (window.lastResult.length) {
+      window.showResult && window.showResult(window.lastResult);
+    }
     window.updateExpPrev && window.updateExpPrev();
+    window.updateStats && window.updateStats();
   });
 
-  // History
+  // ── HISTORY ──
   onValue(ref(db, 'tvtoto/hist'), (snap) => {
-    window.hist = snap.val() || [];
+    const raw = snap.val();
+    window.hist = objToArr(raw).sort((a,b) => (b.ts||0)-(a.ts||0));
     window.renderHistLog && window.renderHistLog();
   });
 
-  // Checked
+  // ── CHECKED ──
   onValue(ref(db, 'tvtoto/checked'), (snap) => {
-    window.checked = snap.val() || [];
+    const raw = snap.val();
+    window.checked = raw ? (Array.isArray(raw) ? raw : Object.values(raw)).filter(Boolean) : [];
     window.renderChecklist && window.renderChecklist();
   });
 }
 
-// ─── Global: Save semua ke Firebase ───
-window.fbSaveAll = async function() {
-  setFbStatus('syncing', '🔄 Menyimpan...');
+// ─── Save SHIFTS ke Firebase (object-based) ───
+window.fbSaveShifts = async function() {
+  setFbStatus('syncing', '🔄 Syncing...');
   try {
-    await set(ref(db, 'tvtoto'), {
-      shifts: window.shifts || [],
-      absenData: window.absenData || {},
-      lineAbsenData: window.lineAbsenData || {},
-      operators: window.operators || { pagi:['','',''], sore:['','',''], malam:['','',''] },
-      jdPool: window.jdPool || [],
-      lastResult: window.lastResult || [],
-      hist: window.hist || [],
-      checked: window.checked || []
-    });
-    setFbStatus('online', '☁ Tersimpan ke Cloud');
+    const obj = arrToObj(window.shifts || []);
+    await set(ref(db, 'tvtoto/shifts'), obj);
+    setFbStatus('online', '☁ Cloud Sync Aktif');
   } catch(e) {
-    console.error('Firebase save error:', e);
-    setFbStatus('offline', '❌ Gagal Sync');
-    // Fallback to localStorage
+    console.error('fbSaveShifts error:', e);
+    setFbStatus('offline', '❌ ' + (e.code || 'Gagal'));
     window.localSave && window.localSave();
   }
 };
 
-// ─── Save spesifik node ───
+// ─── Save LAST RESULT ke Firebase (object-based) ───
+window.fbSaveResult = async function() {
+  try {
+    const obj = arrToObj(window.lastResult || []);
+    await set(ref(db, 'tvtoto/lastResult'), obj);
+  } catch(e) { console.error('fbSaveResult error:', e); }
+};
+
+// ─── Save HISTORY ke Firebase (object-based) ───
+window.fbSaveHist = async function() {
+  try {
+    const arr = (window.hist || []).slice(0, 100);
+    // Simpan sebagai object dengan index sebagai key
+    const obj = {};
+    arr.forEach((item, i) => { obj['h' + i] = item; });
+    await set(ref(db, 'tvtoto/hist'), obj);
+  } catch(e) { console.error('fbSaveHist error:', e); }
+};
+
+// ─── Save JOBDESK POOL ke Firebase ───
+window.fbSavePool = async function() {
+  try {
+    const obj = {};
+    (window.jdPool || []).forEach((item, i) => { obj['p' + i] = item; });
+    await set(ref(db, 'tvtoto/jdPool'), obj);
+  } catch(e) { console.error('fbSavePool error:', e); }
+};
+
+// ─── Save CHECKED ke Firebase ───
+window.fbSaveChecked = async function() {
+  try {
+    const obj = {};
+    (window.checked || []).forEach((item, i) => { obj['c' + i] = item; });
+    await set(ref(db, 'tvtoto/checked'), obj);
+  } catch(e) { console.error('fbSaveChecked error:', e); }
+};
+
+// ─── Save node sederhana (object/string langsung) ───
 window.fbSaveNode = async function(node, data) {
   setFbStatus('syncing', '🔄 Syncing...');
   try {
     await set(ref(db, 'tvtoto/' + node), data);
     setFbStatus('online', '☁ Cloud Sync Aktif');
   } catch(e) {
-    console.error('Firebase node save error:', e);
-    setFbStatus('offline', '❌ Gagal Sync');
+    console.error('fbSaveNode error:', e);
+    setFbStatus('offline', '❌ ' + (e.code || 'Gagal'));
   }
 };
 
-// Start listening setelah DOM ready
+// ─── Save semua sekaligus ───
+window.fbSaveAll = async function() {
+  setFbStatus('syncing', '🔄 Menyimpan semua...');
+  try {
+    await Promise.all([
+      set(ref(db, 'tvtoto/shifts'), arrToObj(window.shifts||[])),
+      set(ref(db, 'tvtoto/absenData'), window.absenData||{}),
+      set(ref(db, 'tvtoto/lineAbsenData'), window.lineAbsenData||{}),
+      set(ref(db, 'tvtoto/operators'), window.operators||{pagi:['','',''],sore:['','',''],malam:['','','']}),
+      set(ref(db, 'tvtoto/lastResult'), arrToObj(window.lastResult||[])),
+    ]);
+    setFbStatus('online', '☁ Semua Tersimpan');
+  } catch(e) {
+    console.error('fbSaveAll error:', e);
+    setFbStatus('offline', '❌ Gagal Sync');
+    window.localSave && window.localSave();
+  }
+};
+
+// Expose ke global
+window.setFbStatus = setFbStatus;
+window.fbDB = db;
+window.fbRef = ref;
+window.fbSet = set;
+
+// Start listening
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', startFirebaseListeners);
 } else {
@@ -1053,12 +1166,16 @@ function save(){
 }
 
 // ─── Unified save dengan debounce ───
-let saveTimer=null;
+let saveTimers={};
 function debounceSave(node,data){
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{
-    if(window.fbSaveNode) window.fbSaveNode(node,data);
-    else localSave();
+  clearTimeout(saveTimers[node]);
+  saveTimers[node]=setTimeout(()=>{
+    if(node==='shifts')        { if(window.fbSaveShifts)  window.fbSaveShifts();  else localSave(); }
+    else if(node==='jdPool')   { if(window.fbSavePool)    window.fbSavePool();    else localSave(); }
+    else if(node==='hist')     { if(window.fbSaveHist)    window.fbSaveHist();    else localSave(); }
+    else if(node==='checked')  { if(window.fbSaveChecked) window.fbSaveChecked(); else localSave(); }
+    else if(node==='lastResult'){ if(window.fbSaveResult) window.fbSaveResult();  else localSave(); }
+    else { if(window.fbSaveNode) window.fbSaveNode(node,data); else localSave(); }
   },800);
 }
 
@@ -1392,13 +1509,13 @@ function renderOpSummary(){const el=document.getElementById('opSummaryList');if(
 
 // ═══ RANDOM ═══
 function setTab(tab){activeTab=tab;document.querySelectorAll('.shift-tab').forEach(t=>{t.style.background=tab===t.id.replace('tab-','')?'rgba(196,18,48,.13)':'rgba(20,2,4,.8)';t.style.borderColor=tab===t.id.replace('tab-','')?'rgba(196,18,48,.38)':'rgba(196,18,48,.12)';t.style.color=tab===t.id.replace('tab-','')?'var(--crimson)':'var(--t2)';});}
-function savePool(){const r=document.getElementById('jobdeskPool').value.trim();jdPool=r.split('\n').map(l=>l.trim()).filter(Boolean);if(window.fbSaveNode)window.fbSaveNode('jdPool',jdPool);else localSave();toast(`Pool: ${jdPool.length} jobdesk ☁`);}
+function savePool(){const r=document.getElementById('jobdeskPool').value.trim();jdPool=r.split('\n').map(l=>l.trim()).filter(Boolean);if(window.fbSavePool)window.fbSavePool();else localSave();toast(`Pool: ${jdPool.length} jobdesk ☁`);}
 function loadPoolInput(){document.getElementById('jobdeskPool').value=jdPool.join('\n');}
 function loadSampleJD(){document.getElementById('jobdeskPool').value=['SCATTER','WD DANA','WD MANDIRI, BNI','DEPO BCA','MONITORING QRIS','WD OVO','CS LIVE CHAT','CUAN REPORT','REKAP HARIAN'].join('\n');toast('Contoh dimuat!','info');}
 function runRandom(){const rp=document.getElementById('jobdeskPool').value.trim();if(rp)jdPool=rp.split('\n').map(l=>l.trim()).filter(Boolean);if(!jdPool.length){toast('Pool kosong!','warn');return;}if(!shifts.length){toast('Belum ada shift!','warn');return;}const btn=document.getElementById('rndBtn');btn.style.opacity='.6';btn.disabled=true;const dice=btn.querySelector('.dice-ico');if(dice)dice.classList.add('spinning');setTimeout(()=>{doRandom();btn.style.opacity='1';btn.disabled=false;if(dice)dice.classList.remove('spinning');},600);}
-function doRandom(){let ts=[...shifts];if(activeTab!=='ALL')ts=shifts.filter(s=>s.type===activeTab);if(!ts.length){toast(`Tidak ada shift ${activeTab}!`,'warn');return;}const result=[];const tg={};ts.forEach(s=>{if(!tg[s.type])tg[s.type]=[];tg[s.type].push(s);});Object.entries(tg).forEach(([type,sl])=>{const opN=getOpsForShift(type);const opS=sl.filter(s=>opN.includes(s.name.toUpperCase()));const rS=sl.filter(s=>!opN.includes(s.name.toUpperCase()));opS.forEach(s=>{result.push({name:s.name,type:s.type,start:s.start,end:s.end,jobdesk:'OPERATOR',isOp:true});});const sp=shuffle([...jdPool]);rS.forEach((s,i)=>{result.push({name:s.name,type:s.type,start:s.start,end:s.end,jobdesk:sp[i%sp.length],isOp:false});});});lastResult=result;if(window.fbSaveNode)window.fbSaveNode('lastResult',lastResult);else localSave();showResult(result);addH('random',`Acak: ${result.length} staff`,'#00f5d4');toast(`Jobdesk diacak! ${result.length} staff ☁`);updateExpPrev();}
+function doRandom(){let ts=[...shifts];if(activeTab!=='ALL')ts=shifts.filter(s=>s.type===activeTab);if(!ts.length){toast(`Tidak ada shift ${activeTab}!`,'warn');return;}const result=[];const tg={};ts.forEach(s=>{if(!tg[s.type])tg[s.type]=[];tg[s.type].push(s);});Object.entries(tg).forEach(([type,sl])=>{const opN=getOpsForShift(type);const opS=sl.filter(s=>opN.includes(s.name.toUpperCase()));const rS=sl.filter(s=>!opN.includes(s.name.toUpperCase()));opS.forEach(s=>{result.push({name:s.name,type:s.type,start:s.start,end:s.end,jobdesk:'OPERATOR',isOp:true});});const sp=shuffle([...jdPool]);rS.forEach((s,i)=>{result.push({name:s.name,type:s.type,start:s.start,end:s.end,jobdesk:sp[i%sp.length],isOp:false});});});lastResult=result;if(window.fbSaveResult)window.fbSaveResult();else localSave();showResult(result);addH('random',`Acak: ${result.length} staff`,'#00f5d4');toast(`Jobdesk diacak! ${result.length} staff ☁`);updateExpPrev();}
 function showResult(result){if(!result.length)return;document.getElementById('resultPanel').style.display='block';document.getElementById('resultEmpty').style.display='none';document.getElementById('resultCount').textContent=`${result.length} Staff`;document.getElementById('resultShiftLabel').textContent=activeTab==='ALL'?'Semua':activeTab;const tb=document.getElementById('resultTB');tb.innerHTML=result.map((r,i)=>`<tr style="${r.isOp?'background:rgba(196,18,48,.04);':''}"><td style="padding:11px 16px;color:var(--t3);font-family:'JetBrains Mono',monospace;border-bottom:1px solid rgba(196,18,48,.07);">${i+1}</td><td style="padding:11px 16px;border-bottom:1px solid rgba(196,18,48,.07);"><div style="display:flex;align-items:center;"><div class="av" style="background:${r.isOp?'linear-gradient(135deg,#7c3aed,#4c1d95)':'linear-gradient(135deg,var(--gold),var(--gold2))'}">${r.name.charAt(0)}</div><strong style="font-family:'Josefin Sans',sans-serif;letter-spacing:.04em;">${r.name}</strong>${r.isOp?'<span class="op-tag" style="margin-left:8px;font-size:10px;"><span>👑</span>OP</span>':''}</div></td><td style="padding:11px 16px;border-bottom:1px solid rgba(196,18,48,.07);">${shiftBadge(r.type)}</td><td style="padding:11px 16px;border-bottom:1px solid rgba(196,18,48,.07);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t2);">${r.start} – ${r.end}</td><td style="padding:11px 16px;border-bottom:1px solid rgba(196,18,48,.07);"><span class="jdb ${r.isOp?'jdb-op':'jdb-rnd'}">${r.isOp?'👑':'🎲'} ${r.jobdesk}</span></td><td style="padding:11px 16px;border-bottom:1px solid rgba(196,18,48,.07);">${r.isOp?`<span class="badge" style="background:rgba(124,58,237,.09);color:#c084fc;border:1px solid rgba(124,58,237,.25);">TETAP</span>`:`<span class="badge" style="background:rgba(0,245,212,.06);color:#00f5d4;border:1px solid rgba(0,245,212,.16);">ACAK</span>`}</td></tr>`).join('');}
-function clearResult(){lastResult=[];if(window.fbSaveNode)window.fbSaveNode('lastResult',[]);else localSave();document.getElementById('resultPanel').style.display='none';document.getElementById('resultEmpty').style.display='block';toast('Hasil dibersihkan','warn');}
+function clearResult(){lastResult=[];if(window.fbSaveResult)window.fbSaveResult();else localSave();document.getElementById('resultPanel').style.display='none';document.getElementById('resultEmpty').style.display='block';toast('Hasil dibersihkan','warn');}
 function copyResult(){if(!lastResult.length){toast('Tidak ada hasil!','warn');return;}const text=lastResult.map((r,i)=>`${i+1}. ${r.name} → ${r.jobdesk}${r.isOp?' [OPERATOR]':''}`).join('\n');navigator.clipboard.writeText(text).then(()=>toast('Hasil disalin!')).catch(()=>clipFallback(text));}
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
@@ -1407,16 +1524,16 @@ function addShift(d){
   const data=d||{name:document.getElementById('sh-name').value.trim().toUpperCase(),date:document.getElementById('sh-date').value,start:document.getElementById('sh-start').value,end:document.getElementById('sh-end').value,type:document.getElementById('sh-type').value,note:document.getElementById('sh-note').value.trim()};
   if(!data.name){toast('Nama staff wajib!','warn');return;}if(!data.start||!data.end){toast('Jam wajib diisi!','warn');return;}
   shifts.push({...data,id:Date.now()+'_'+Math.random().toString(36).substr(2,5),hours:hrsN(data.start,data.end)});
-  if(window.fbSaveNode)window.fbSaveNode('shifts',shifts);else localSave();
+  if(window.fbSaveShifts)window.fbSaveShifts();else localSave();
   addH('shift',`Shift: ${data.name} (${data.start}–${data.end})`,'var(--gold)');
   if(!d){['sh-name','sh-start','sh-end','sh-note'].forEach(id=>document.getElementById(id).value='');document.getElementById('sh-total').textContent='— jam';}
   renderAll();toast(`Shift ${data.name} ditambahkan! ☁`);
 }
-function delShift(id){shifts=shifts.filter(s=>s.id!==id);if(window.fbSaveNode)window.fbSaveNode('shifts',shifts);else localSave();addH('delete','Shift dihapus','var(--crimson)');renderAll();toast('Dihapus','warn');}
+function delShift(id){shifts=shifts.filter(s=>s.id!==id);if(window.fbSaveShifts)window.fbSaveShifts();else localSave();addH('delete','Shift dihapus','var(--crimson)');renderAll();toast('Dihapus','warn');}
 function filterST(q){stSearch=q.toLowerCase();renderShiftTbl();}
 function filterSTtype(v){stType=v;renderShiftTbl();}
 function parseLine2(line){line=line.trim();if(!line||/^(NO|#|NAMA|SHIFT|START|END|KET|-+)/i.test(line))return null;const parts=line.split('|').map(p=>p.trim()).filter(Boolean);const tRx=/^\d{1,2}:\d{2}(:\d{2})?$/;if(parts.length>=3){const ti=parts.reduce((a,p,i)=>{if(tRx.test(p))a.push(i);return a;},[]);if(ti.length>=2){let st=parts[ti[0]].substring(0,5),en=parts[ti[1]].substring(0,5);let nm=parts.slice(0,ti[0]).join(' ').replace(/^\d+\s*/,'').trim().toUpperCase();if(nm)return{name:nm,start:st,end:en};}let nm=parts[0].replace(/^\d+\s*/,'').trim().toUpperCase();if(nm&&tRx.test(parts[1])&&tRx.test(parts[2]))return{name:nm,start:parts[1].substring(0,5),end:parts[2].substring(0,5)};}const times=(line.match(/\d{1,2}:\d{2}(:\d{2})?/g)||[]).map(t=>t.substring(0,5));if(times.length>=2){let before=line.substring(0,line.indexOf(times[0])).replace(/^\d+\s+/,'').trim().toUpperCase();if(before.length>1&&before.length<60)return{name:before,start:times[0],end:times[1]};}return null;}
-function importPaste(){const raw=document.getElementById('shiftPaste').value.trim();if(!raw){toast('Kotak paste kosong!','warn');return;}let added=0,skip=0;raw.split('\n').forEach(line=>{const p=parseLine2(line);if(!p){skip++;return;}shifts.push({...p,date:todayS(),type:detectType(p.start),hours:hrsN(p.start,p.end),id:Date.now()+'_'+Math.random().toString(36).substr(2,5),note:''});added++;});if(window.fbSaveNode)window.fbSaveNode('shifts',shifts);else localSave();renderAll();addH('import',`Import: ${added} shift (${skip} lewati)`,'#00f5d4');toast(`${added} shift diimport! ☁`,added>0?'ok':'warn');if(added>0)document.getElementById('shiftPaste').value='';}
+function importPaste(){const raw=document.getElementById('shiftPaste').value.trim();if(!raw){toast('Kotak paste kosong!','warn');return;}let added=0,skip=0;raw.split('\n').forEach(line=>{const p=parseLine2(line);if(!p){skip++;return;}shifts.push({...p,date:todayS(),type:detectType(p.start),hours:hrsN(p.start,p.end),id:Date.now()+'_'+Math.random().toString(36).substr(2,5),note:''});added++;});if(window.fbSaveShifts)window.fbSaveShifts();else localSave();renderAll();addH('import',`Import: ${added} shift (${skip} lewati)`,'#00f5d4');toast(`${added} shift diimport! ☁`,added>0?'ok':'warn');if(added>0)document.getElementById('shiftPaste').value='';}
 function processPaste(){const r=document.getElementById('quickPaste').value.trim();if(!r){toast('Kotak kosong!','warn');return;}document.getElementById('shiftPaste').value=r;importPaste();document.getElementById('quickPaste').value='';gp('shift',document.querySelectorAll('.nitem')[3]);}
 
 // ═══ MONITOR ═══
@@ -1431,7 +1548,7 @@ function addH(type,desc,color){
   if(hist.length>100)hist=hist.slice(0,100);
   debounceSave('hist',hist);renderHistLog();document.getElementById('npip').style.display='block';
 }
-function clearHist(){if(!confirm('Hapus history?'))return;hist=[];if(window.fbSaveNode)window.fbSaveNode('hist',[]);else localSave();renderHistLog();toast('History dihapus','warn');}
+function clearHist(){if(!confirm('Hapus history?'))return;hist=[];if(window.fbSaveHist)window.fbSaveHist();else localSave();renderHistLog();toast('History dihapus','warn');}
 
 // ═══ CHECKLIST ═══
 function renderChecklist(){const names=[...new Set(shifts.map(s=>s.name))];const el=document.getElementById('checklistPanel');if(!names.length){el.innerHTML=`<div class="empty-red"><div class="eri">📋</div><div class="ert">Tambah shift dulu</div></div>`;return;}shifts.forEach(s=>{if(shiftStatus(s)==='AKTIF'&&!checked.includes(s.name))checked.push(s.name);});debounceSave('checked',checked);el.innerHTML=`<div class="check-grid">`+names.map(name=>{const isC=checked.includes(name);const st=shiftStatus(shifts.find(s=>s.name===name)||{start:'',end:''});return`<div class="check-item" style="border-color:${isC?'rgba(34,197,94,.18)':'var(--border)'}"><div class="cbox ${isC?'checked':''}" onclick="toggleCheck('${name}')"></div><div><div style="font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:13px;letter-spacing:.04em;">${name}</div><div style="font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:.06em;color:${st==='AKTIF'?'var(--green)':st==='SELESAI'?'var(--t3)':'var(--crimson)'};">${st}</div></div></div>`;}).join('')+`</div>`;const unc=names.filter(n=>!checked.includes(n)).length;document.getElementById('checkBadge').textContent=`${unc} Belum`;}
