@@ -77,6 +77,21 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .lspin{display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto;}
 .lfoot{text-align:center;margin-top:18px;font-size:9.5px;color:rgba(140,110,40,.4);letter-spacing:.16em;}
 
+
+/* ─── ABSENSI SHIFT MOBILE ─── */
+#mob-absen-screen{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(3,0,0,.97);transition:opacity .5s,visibility .5s;}
+#mob-absen-screen.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.mob-card{width:90%;max-width:400px;background:linear-gradient(160deg,rgba(14,14,14,.99),rgba(8,8,8,.99));border:1px solid rgba(201,162,39,.28);border-radius:20px;padding:30px;box-shadow:0 20px 80px rgba(0,0,0,.9),var(--glow-gold);text-align:center;position:relative;}
+.mob-title{font-family:'Cinzel',serif;font-size:22px;color:var(--gold);margin-bottom:5px;font-weight:800;}
+.mob-sub{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:2px;margin-bottom:25px;}
+.mob-form{text-align:left;margin-bottom:20px;}
+.mob-alert{background:rgba(196,18,48,.1);border:1px solid rgba(196,18,48,.3);color:var(--crimson);padding:12px;border-radius:10px;font-size:11px;margin-bottom:15px;display:none;white-space:pre-wrap;}
+.mob-alert.success{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green);}
+.mob-alert.warn{background:rgba(232,185,79,.1);border-color:rgba(232,185,79,.3);color:var(--gold);}
+.mob-footer{font-size:10px;color:rgba(180,140,40,.4);margin-top:20px;line-height:1.5;}
+.close-mob{position:absolute;top:15px;right:15px;background:none;border:none;color:var(--t3);font-size:24px;cursor:pointer;}
+.close-mob:hover{color:var(--crimson);}
+
 /* ─── APP WRAPPER ─── */
 #app{display:none;}
 #app.visible{display:block;}
@@ -475,6 +490,13 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <div class="lfield"><label class="llabel">Username</label><div class="liw"><span class="lic">👤</span><input class="linput" id="lu" type="text" placeholder="Username..." onkeydown="if(event.key==='Enter')doLogin()"></div></div>
       <div class="lfield"><label class="llabel">Password</label><div class="liw"><span class="lic">🔒</span><input class="linput" id="lp" type="password" placeholder="Password..." onkeydown="if(event.key==='Enter')doLogin()"><button class="leye" id="leye" onclick="toggleEye()">👁</button></div></div>
       <button class="btn-login" id="lbtn" onclick="doLogin()"><span id="lbtxt">Masuk ke Dashboard</span><div class="lspin" id="lspin"></div></button>
+<div style="margin-top:20px;text-align:center;display:flex;align-items:center;gap:10px;">
+  <div style="flex:1;height:1px;background:rgba(201,162,39,.1);"></div>
+  <span style="font-size:9px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;">Atau</span>
+  <div style="flex:1;height:1px;background:rgba(201,162,39,.1);"></div>
+</div>
+<button class="btn-login" style="margin-top:20px; background:linear-gradient(135deg,rgba(6,199,85,.15),rgba(3,140,60,.05)); border-color:rgba(6,199,85,.45); color:var(--line-green);" onclick="openMobAbsen()">📱 Form Absensi Shift (Staff)</button>
+
       <div class="lfoot">TVTOTO OPS v5.0 — FIREBASE REALTIME SYNC ACTIVE</div>
     </div>
   </div>
@@ -1747,7 +1769,46 @@ window.updateExpPrev=updateExpPrev;
 function dl2(fn,c,t='text/plain'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=fn;a.click();}
 function expCSV(type){if(type==='shift'){if(!shifts.length){toast('Tidak ada data!','warn');return;}dl2('shift.csv',['No,Nama,Role,Tipe,Mulai,Selesai,Total',...shifts.map((s,i)=>`${i+1},"${s.name}",${s.role},${s.type},${s.start},${s.end},"${hrs(s.start,s.end)}"`)].join('\n'),'text/csv');}else{if(!lastResult.length){toast('Tidak ada hasil!','warn');return;}dl2('jobdesk.csv',['No,Nama,Shift,Mulai,Selesai,Jobdesk,Tipe',...lastResult.map((r,i)=>`${i+1},"${r.name}",${r.type},${r.start},${r.end},"${r.jobdesk}",${r.isOp?'OPERATOR':r.isManual?'MANUAL':'ACAK'}`)].join('\n'),'text/csv');}toast('CSV diunduh!');}
 function expJSON(type){const data=type==='shift'?shifts:lastResult;if(!data.length){toast('Tidak ada data!','warn');return;}dl2(`${type}.json`,JSON.stringify(data,null,2),'application/json');toast('JSON diunduh!');}
-function printTbl(type){let rows,title,headers;if(type==='shift'){if(!shifts.length){toast('Tidak ada data!','warn');return;}title='SHIFT REPORT';headers=['No','Nama','Role','Tipe','Mulai','Selesai','Total'];rows=shifts.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name}</td><td>${s.role}</td><td>${s.type}</td><td>${s.start}</td><td>${s.end}</td><td>${hrs(s.start,s.end)}</td></tr>`).join('');}else{if(!lastResult.length){toast('Tidak ada hasil!','warn');return;}title='DISTRIBUSI JOBDESK';headers=['No','Nama','Shift','Jam','Jobdesk','Tipe'];rows=lastResult.map((r,i)=>`<tr><td>${i+1}</td><td>${r.name}</td><td>${r.type}</td><td>${r.start}–${r.end}</td><td>${r.jobdesk}</td><td>${r.isOp?'OPERATOR':r.isManual?'MANUAL🔒':'ACAK'}</td></tr>`).join('');}const w=window.open('','_blank');w.document.write(`<html><head><title>${title}</title><style>body{font-family:sans-serif;font-size:12px;padding:20px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ccc;padding:7px;text-align:left;}th{background:#111;color:#fff;}</style></head><body><h2>${title} — ${new Date().toLocaleDateString('id-ID')}</h2><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></body></html>`);w.document.close();w.print();}
+function printTbl(type){let rows,title,headers;if(type==='shift'){if(!shifts.length){toast('Tidak ada data!','warn');return;}title='SHIFT REPORT';headers=['No','Nama','Role','Tipe','Mulai','Selesai','Total'];rows=shifts.map((s,i)=>`<tr><td>${i+1}</td><td>${s.name}</td><td>${s.role}</td><td>${s.type}</td><td>${s.start}</td><td>${s.end}</td><td>${hrs(s.start,s.end)}</td></tr>`).join('');}else{if(!lastResult.length){toast('Tidak ada hasil!','warn');return;}title='DISTRIBUSI JOBDESK';headers=['No','Nama','Shift','Jam','Jobdesk','Tipe'];rows=lastResult.map((r,i)=>`<tr><td>${i+1}</td><td>${r.name}</td><td>${r.type}</td><td>${r.start}–${r.end}</td><td>${r.jobdesk}</td><td>${r.isOp?'OPERATOR':r.isManual?'MANUAL🔒':'ACAK'}</td></tr>`).join('');}const w=window.open('','_blank');w.document.write(`<html><head><title>${title}</title><style>body{font-family:sans-serif;font-size:12px;padding:20px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ccc;padding:7px;text-align:left;}th{background:#111;color:#fff;}</style></head><body><h2>${title} — ${new Date().toLocaleDateString('id-ID')}</h2><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>
+<div id="mob-absen-screen" class="hidden">
+  <div class="mob-card">
+    <button class="close-mob" onclick="closeMobAbsen()">×</button>
+    <div class="logo-gem" style="width:60px;height:60px;font-size:24px;margin-bottom:15px;border-radius:16px;">V5</div>
+    <div class="mob-title">ABSENSI SHIFT</div>
+    <div class="mob-sub">Wajib 1 Jam Sebelum Shift</div>
+    
+    <div id="mob-alert" class="mob-alert"></div>
+    
+    <div class="mob-form">
+      <div class="lfield">
+        <label class="llabel">Nama Staff</label>
+        <div class="liw">
+          <input class="linput" id="mob-name" type="text" placeholder="Masukkan nama Anda..." list="staffDL">
+        </div>
+      </div>
+      <div class="lfield">
+        <label class="llabel">Pilih Shift</label>
+        <div class="liw">
+          <select class="linput" id="mob-shift" style="appearance:none;cursor:pointer;">
+            <option value="">-- Pilih Shift --</option>
+            <option value="Pagi">Pagi (07:00 - 15:00)</option>
+            <option value="Sore">Sore (15:00 - 23:00)</option>
+            <option value="Malam">Malam (23:00 - 07:00)</option>
+          </select>
+          <div class="lic" style="right:15px;left:auto;opacity:0.8;color:var(--gold);">▼</div>
+        </div>
+      </div>
+      <button class="btn-login" onclick="submitMobAbsen()" style="background:linear-gradient(135deg,var(--green),#064e3b);border-color:var(--line-green);color:#fff;margin-top:10px;font-size:14px;">AJUKAN ABSENSI</button>
+    </div>
+    
+    <div class="mob-footer">
+      Sistem mendeteksi device & waktu secara otomatis.<br>
+      <span style="color:var(--gold);">Status Firebase: Tersambung</span>
+    </div>
+  </div>
+</div>
+
+</body></html>`);w.document.close();w.print();}
 function exportLineCSV(){const data=shifts;if(!data.length){toast('Tidak ada data!','warn');return;}const rows=['No,Nama,Role,Tipe,Mulai,Selesai,Deadline,Absen LINE,Status,Terlambat'];data.forEach((s,i)=>{const la=lineAbsenData[s.id]||{};const ci=la.lineCheckIn||'';const st=getLineStatus(s.start,ci);const dl=getDeadlineStr(s.start);const ld=ci&&st!=='ok'&&st!=='belum'?calcLineLateDuration(s.start,ci)||'-':'-';rows.push(`${i+1},"${s.name}",${s.role},${s.type},${s.start},${s.end},${dl.substring(0,5)},"${ci}",${st.toUpperCase()},"${ld}"`);});dl2('absensi_line.csv',rows.join('\n'),'text/csv');toast('Export LINE berhasil!');}
 function printLineReport(){const data=shifts;if(!data.length){toast('Tidak ada data!','warn');return;}const now=new Date().toLocaleString('id-ID');let rows=data.map((s,i)=>{const la=lineAbsenData[s.id]||{};const ci=la.lineCheckIn||'-';const st=getLineStatus(s.start,la.lineCheckIn);const dl=getDeadlineStr(s.start);const ld=la.lineCheckIn&&st!=='ok'&&st!=='belum'?calcLineLateDuration(s.start,la.lineCheckIn)||'-':'-';const stColor=st==='ok'?'#16a34a':st==='sanksi'?'#dc2626':st==='telat'?'#ca8a04':'#6b7280';const stLabel=st==='ok'?'✅ TEPAT':st==='sanksi'?'🚨 SANKSI':st==='telat'?'⚠ TELAT':'⏳ BELUM';return`<tr><td>${i+1}</td><td><strong>${s.name}</strong></td><td>${s.role}</td><td>${s.type}</td><td>${s.start}–${s.end}</td><td>${dl.substring(0,5)}</td><td style="font-family:monospace">${ci}</td><td style="color:${stColor};font-weight:700">${stLabel}</td><td>${ld}</td></tr>`;}).join('');const w=window.open('','_blank');w.document.write(`<html><head><title>Laporan LINE</title><style>body{font-family:'Segoe UI',sans-serif;font-size:12px;padding:24px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:8px 10px;text-align:left;}th{background:#111;color:#fff;font-size:11px;}tr:nth-child(even){background:#f9f9f9;}</style></head><body><h1 style="color:#b91c1c;">Laporan Absensi LINE — TVTOTO OPS</h1><p>Dicetak: ${now}</p><table><thead><tr><th>#</th><th>Nama</th><th>Role</th><th>Shift</th><th>Jam</th><th>Deadline</th><th>Absen</th><th>Status</th><th>Terlambat</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);w.document.close();w.print();}
 function copyLineAll(){const data=getLineShifts();if(!data.length){toast('Tidak ada data!','warn');return;}let txt=`LAPORAN ABSENSI LINE — TVTOTO OPS\n${'═'.repeat(50)}\n\n`;data.forEach((s,i)=>{const la=lineAbsenData[s.id]||{};const ci=la.lineCheckIn||'—';const st=getLineStatus(s.start,la.lineCheckIn);const dl=getDeadlineStr(s.start);const stLabel=st==='ok'?'✅ TEPAT':st==='sanksi'?'🚨 SANKSI':st==='telat'?'⚠ TELAT':'⏳ BELUM';txt+=`${i+1}. ${s.name}\n   Shift    : ${s.type} | ${s.start}–${s.end}\n   Deadline : ${dl.substring(0,5)} WIB\n   Absen    : ${ci} WIB\n   Status   : ${stLabel}\n\n`;});navigator.clipboard.writeText(txt).then(()=>toast('Data LINE disalin!')).catch(()=>clipFallback(txt));}
